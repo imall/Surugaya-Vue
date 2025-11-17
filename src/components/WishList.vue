@@ -1,14 +1,30 @@
 <template>
   <div class="wishlist-container">
     <div class="header">
-      <h1>駿河屋 願望清單</h1>
-      <div v-if="selectedProducts.length > 0" class="toolbar">
-        <span class="selected-count">{{ selectedProducts.length }}個が選択されています</span>
-        <button @click="deleteSelected" class="btn-delete-selected">
-          選択した商品を削除
-        </button>
+        <div class="header-row">
+          <h1>駿河屋 願望清單</h1>
+
+          <div class="header-actions">
+            <div class="controls">
+              <label for="sort-select">並び替え:</label>
+              <select id="sort-select" v-model="sortOption">
+                <option value="default">デフォルト</option>
+                <option value="price-asc">価格: 低い順</option>
+                <option value="price-desc">価格: 高い順</option>
+                <option value="name-asc">名前: A→Z</option>
+                <option value="name-desc">名前: Z→A</option>
+              </select>
+            </div>
+
+            <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
+              <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length }}個が選択されています</span>
+              <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
+                選択した商品を削除
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
     <div v-if="loading" class="loading">
       読み込み中...
@@ -20,7 +36,7 @@
 
     <div v-else class="product-grid">
       <ProductCard 
-        v-for="product in products" 
+        v-for="product in sortedProducts" 
         :key="product.id" 
         :product="product"
         :is-selected="selectedProducts.includes(product.id)"
@@ -39,6 +55,47 @@ const products = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedProducts = ref([])
+
+// sorting
+const sortOption = ref('default')
+
+const isAvailable = (p) => {
+  const sale = p.salePrice
+  const cur = p.currentPrice
+  return (sale && Number(sale) > 0) || (cur && Number(cur) > 0)
+}
+
+const getEffectivePrice = (p) => {
+  const sale = p.salePrice
+  const cur = p.currentPrice
+  if (sale && Number(sale) > 0) return Number(sale)
+  if (cur && Number(cur) > 0) return Number(cur)
+  return 0
+}
+
+const sortedProducts = computed(() => {
+  if (!products.value) return []
+  const arr = [...products.value]
+
+  switch (sortOption.value) {
+    case 'price-asc': {
+      const available = arr.filter(isAvailable).sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b))
+      const unavailable = arr.filter(p => !isAvailable(p))
+      return [...available, ...unavailable]
+    }
+    case 'price-desc': {
+      const available = arr.filter(isAvailable).sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a))
+      const unavailable = arr.filter(p => !isAvailable(p))
+      return [...available, ...unavailable]
+    }
+    case 'name-asc':
+      return arr.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+    case 'name-desc':
+      return arr.sort((a, b) => (b.title || '').localeCompare(a.title || ''))
+    default:
+      return arr
+  }
+})
 
 const fetchProducts = async () => {
   try {
@@ -133,10 +190,17 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.header {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #333;
+.header-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .header h1 {
@@ -145,14 +209,38 @@ onMounted(() => {
   margin: 0 0 10px 0;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls label {
+  font-size: 14px;
+  color: #333;
+}
+
+.controls select {
+  padding: 6px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
 .toolbar {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 10px;
+  margin-top: 0;
   padding: 10px;
   background-color: #f0f0f0;
   border-radius: 4px;
+}
+
+.toolbar-empty {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .selected-count {
@@ -199,6 +287,24 @@ onMounted(() => {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .toolbar {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 
