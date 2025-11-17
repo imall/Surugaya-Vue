@@ -1,30 +1,31 @@
 <template>
   <div class="wishlist-container">
     <div class="header">
-        <div class="header-row">
-          <h1>駿河屋 願望清單</h1>
+      <div class="header-row">
+        <h1>駿河屋 願望清單</h1>
 
-          <div class="header-actions">
-            <div class="controls">
-              <label for="sort-select">並び替え:</label>
-              <select id="sort-select" v-model="sortOption">
-                <option value="default">デフォルト</option>
-                <option value="price-asc">価格: 低い順</option>
-                <option value="price-desc">価格: 高い順</option>
-                <option value="name-asc">名前: A→Z</option>
-                <option value="name-desc">名前: Z→A</option>
-              </select>
-            </div>
+        <div class="header-actions">
+          <div class="controls">
+            <label for="sort-select" class="label-name">並び替え:</label>
+            <select id="sort-select" v-model="sortOption">
+              <option value="default">デフォルト</option>
+              <option value="price-asc">価格: 低い順</option>
+              <option value="price-desc">価格: 高い順</option>
+              <option value="name-asc">名前: A→Z</option>
+              <option value="name-desc">名前: Z→A</option>
+            </select>
+          </div>
 
-            <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
-              <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length }}個が選択されています</span>
-              <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
-                選択した商品を削除
-              </button>
-            </div>
+          <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
+            <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
+              }}個が選択されています</span>
+            <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
+              選択した商品を削除
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
     <div v-if="loading" class="loading">
       読み込み中...
@@ -35,14 +36,9 @@
     </div>
 
     <div v-else class="product-grid">
-      <ProductCard 
-        v-for="product in sortedProducts" 
-        :key="product.id" 
-        :product="product"
-        :is-selected="selectedProducts.includes(product.id)"
-        @toggle-select="toggleProductSelection"
-        @delete="deleteProduct"
-      />
+      <ProductCard v-for="product in sortedProducts" :key="product.id" :product="product"
+        :is-selected="selectedProducts.includes(product.id)" @toggle-select="toggleProductSelection"
+        @delete="deleteProduct" />
     </div>
   </div>
 </template>
@@ -158,7 +154,7 @@ const deleteSelected = async () => {
     return
   }
 
-  const deletePromises = selectedProducts.value.map(id => 
+  const deletePromises = selectedProducts.value.map(id =>
     fetch(`https://surugaya.onrender.com/api/Surugaya/${id}`, {
       method: 'DELETE'
     })
@@ -196,6 +192,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 12px;
 }
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -235,6 +232,7 @@ onMounted(() => {
   padding: 10px;
   background-color: #f0f0f0;
   border-radius: 4px;
+  min-height: 44px;
 }
 
 .toolbar-empty {
@@ -247,6 +245,10 @@ onMounted(() => {
   font-size: 14px;
   color: #333;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 140px);
 }
 
 .btn-delete-selected {
@@ -258,6 +260,7 @@ onMounted(() => {
   cursor: pointer;
   font-size: 13px;
   transition: background-color 0.2s;
+  flex-shrink: 0;
 }
 
 .btn-delete-selected:hover {
@@ -308,9 +311,9 @@ onMounted(() => {
   }
 }
 
-/* @media (max-width: 768px) {
-  .product-grid {
-    grid-template-columns: fr;
+@media (max-width: 768px) {
+  .label-name {
+    display: none;
   }
-} */
+}
 </style>
