@@ -1,11 +1,11 @@
 <template>
   <div class="product-card" :class="{ selected: isSelected }">
+    <button @click="handleDelete" class="btn-delete" title="削除">×</button>
+    
     <div class="product-content">
-      <div class="product-image" @click="toggleSelect">
+      <div class="product-image" @click="handleToggleSelect">
         <img :src="product.imageUrl" :alt="product.title" />
-        <div v-if="isSelected" class="selected-overlay">
-          <span class="checkmark">✓</span>
-        </div>
+        <div v-if="isSelected" class="selected-overlay"></div>
       </div>
 
       <div class="product-info">
@@ -51,19 +51,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 const props = defineProps({
   product: {
     type: Object,
     required: true
+  },
+  isSelected: {
+    type: Boolean,
+    default: false
   }
 })
 
-const isSelected = ref(false)
+const emit = defineEmits(['toggle-select', 'delete'])
 
-const toggleSelect = () => {
-  isSelected.value = !isSelected.value
+const handleToggleSelect = () => {
+  emit('toggle-select', props.product.id)
+}
+
+const handleDelete = () => {
+  emit('delete', props.product.id)
 }
 
 const formatDate = (dateString) => {
@@ -84,11 +90,39 @@ const formatDate = (dateString) => {
   width: 100%;
   box-sizing: border-box;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .product-card.selected {
   border-color: #0066cc;
   box-shadow: 0 0 8px rgba(0, 102, 204, 0.3);
+}
+
+.btn-delete {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgb(227, 65, 65);
+  color: white;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  padding: 0;
+}
+
+.btn-delete:hover {
+  background-color: #b71c1c;
+  transform: scale(1.15);
+  opacity: 1;
 }
 
 .product-content {
@@ -123,23 +157,17 @@ const formatDate = (dateString) => {
 
 .selected-overlay {
   position: absolute;
-  top: 30px;
-  left: 30px;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
   max-width: 150px;
   height: 100%;
+  background-color: rgba(0, 102, 204, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-}
-
-.checkmark {
-  font-size: 48px;
-  color: #0066cc;
-  font-weight: bold;
-  text-shadow: 0 0 4px white;
 }
 
 .product-info {
