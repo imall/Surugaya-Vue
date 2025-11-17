@@ -31,6 +31,19 @@
             </select>
           </div>
 
+          <div class="controls-and-filters">
+            <div class="filters">
+              <label class="filter-label">
+                <input type="checkbox" v-model="filterOnSale" />
+                <span>特價中の商品のみ</span>
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" v-model="filterOutOfStock" />
+                <span>無庫存の商品のみ</span>
+              </label>
+            </div>
+          </div>
+
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
             <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
             }}個が選択されています</span>
@@ -66,6 +79,10 @@ const products = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedProducts = ref([])
+
+// filters
+const filterOnSale = ref(false)
+const filterOutOfStock = ref(false)
 
 // add URL panel
 const showAdd = ref(false)
@@ -130,9 +147,20 @@ const getEffectivePrice = (p) => {
   return 0
 }
 
-const sortedProducts = computed(() => {
+const filteredProducts = computed(() => {
   if (!products.value) return []
-  const arr = [...products.value]
+  // if no filters selected, return all
+  if (!filterOnSale.value && !filterOutOfStock.value) return [...products.value]
+
+  return products.value.filter(p => {
+    const isSale = p.salePrice && Number(p.salePrice) > 0
+    const isOutOfStock = !(p.currentPrice && Number(p.currentPrice) > 0)
+    return (filterOnSale.value && isSale) || (filterOutOfStock.value && isOutOfStock)
+  })
+})
+
+const sortedProducts = computed(() => {
+  const arr = [...filteredProducts.value]
 
   switch (sortOption.value) {
     case 'price-asc': {
@@ -332,7 +360,7 @@ onMounted(() => {
 
 .add-wrapper {
   position: absolute;
-  top: 12px;
+  top: 75px;
   right: 12px;
   z-index: 80;
 }
@@ -493,6 +521,47 @@ onMounted(() => {
 
   .label-name {
     display: none;
+  }
+}
+
+/* Responsive layout for filters */
+.controls-and-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  writing-mode: horizontal-tb; /* force horizontal text */
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .controls-and-filters {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .filters {
+    gap: 10px;
   }
 }
 </style>
