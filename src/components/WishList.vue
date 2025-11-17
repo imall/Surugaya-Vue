@@ -18,7 +18,7 @@
 
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
             <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
-              }}個が選択されています</span>
+            }}個が選択されています</span>
             <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
               選択した商品を削除
             </button>
@@ -201,9 +201,10 @@ onMounted(() => {
 }
 
 .header h1 {
+  width: 100%;
   font-size: 24px;
   color: #333;
-  margin: 0 0 10px 0;
+  margin: 10px 0;
 }
 
 .controls {
@@ -280,7 +281,7 @@ onMounted(() => {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 15px;
   background-color: white;
   padding: 15px;
@@ -288,8 +289,22 @@ onMounted(() => {
 
 @media (max-width: 1024px) {
   .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
   }
 }
 
@@ -312,6 +327,10 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .label-name {
     display: none;
   }
