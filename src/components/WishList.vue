@@ -1,5 +1,20 @@
 <template>
   <div class="wishlist-container">
+    <div class="add-wrapper">
+      <button class="add-button" @click="showAdd = !showAdd" :aria-expanded="showAdd">+</button>
+      <div v-if="showAdd" class="add-box">
+        <input
+          v-model="newUrl"
+          @keyup.enter="addUrl"
+          @keyup.esc="showAdd = false"
+          type="text"
+          placeholder="貼上商品網址，Enter送出"
+          class="add-input"
+        />
+        <button class="add-submit" @click="addUrl" :disabled="adding">送出</button>
+        <div class="add-msg" v-if="addError">{{ addError }}</div>
+      </div>
+    </div>
     <div class="header">
       <div class="header-row">
         <h1>駿河屋 願望清單</h1>
@@ -51,6 +66,52 @@ const products = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedProducts = ref([])
+
+// add URL panel
+const showAdd = ref(false)
+const newUrl = ref('')
+const adding = ref(false)
+const addError = ref('')
+const API_URL = 'https://surugaya.onrender.com/api/Surugaya'
+
+const addUrl = async () => {
+  if (!newUrl.value || adding.value) return
+  addError.value = ''
+  // simple validation
+  try {
+    new URL(newUrl.value)
+  } catch (e) {
+    addError.value = '無効な URL です'
+    return
+  }
+
+  adding.value = true
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productUrl: newUrl.value })
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(text || 'API エラー')
+    }
+
+    // 成功: 清空輸入並重新載入列表
+    newUrl.value = ''
+    showAdd.value = false
+    await fetchProducts()
+  } catch (err) {
+    addError.value = err.message || String(err)
+    console.error('Error adding URL:', err)
+  } finally {
+    adding.value = false
+  }
+}
 
 // sorting
 const sortOption = ref('default')
@@ -184,6 +245,7 @@ onMounted(() => {
   font-family: "メイリオ", Meiryo, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", sans-serif;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .header-row {
@@ -266,6 +328,104 @@ onMounted(() => {
 
 .btn-delete-selected:hover {
   background-color: #b71c1c;
+}
+
+.add-wrapper {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 80;
+}
+
+.add-button {
+  width: 48px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  background: linear-gradient(180deg,#ffffff 0%,#f7f7f7 100%);
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(30,30,30,0.06);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s, opacity .12s;
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  background: #f4f6f8;
+  box-shadow: 0 10px 24px rgba(30,30,30,0.08);
+}
+
+.add-button:focus {
+  outline: none;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+}
+
+.add-box {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  margin-top: 0;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 320px;
+  max-width: 520px;
+  z-index: 90;
+  transform-origin: top right;
+  animation: pop .12s ease;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.add-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-submit {
+  background: linear-gradient(180deg,#5a5a5a 0%,#3b3b3b 100%);
+  color: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.10);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+}
+
+.add-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.add-submit:hover:enabled {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+.add-msg {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-left: 8px;
 }
 
 .loading,
