@@ -1,7 +1,7 @@
 <template>
   <div class="product-card" :class="{ selected: isSelected }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
-    
+
     <div class="product-content">
       <div class="product-image" @click="handleToggleSelect">
         <img :src="product.imageUrl" :alt="product.title" />

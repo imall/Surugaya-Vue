@@ -50,11 +50,8 @@ const fetchProducts = async () => {
     }
 
     const data = await response.json()
-    // 為每個商品添加 id（使用索引或其他唯一標識）
-    products.value = data.map((item, index) => ({
-      ...item,
-      id: index + 1
-    }))
+    // 直接使用 API 回傳的資料（包含 id）
+    products.value = data
   } catch (err) {
     error.value = err.message
     console.error('Error fetching products:', err)
