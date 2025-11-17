@@ -9,7 +9,6 @@
       </div>
 
       <div class="product-info">
-        <div class="category">タペストリー</div>
         <a :href="product.url" target="_blank" class="product-title">
           {{ product.title }}
         </a>
@@ -17,20 +16,18 @@
         <div class="price-section">
           <template v-if="product.salePrice">
             <div class="price-row">
-              <span class="label sale-label">販売価格</span>
+              <span class="label ">販売価格</span>
               <span class="original-price">¥{{ product.currentPrice.toLocaleString() }}</span>
             </div>
             <div class="price-row">
-              <span class="label">セール価格</span>
+              <span class="label sale-label">セール価格</span>
               <span class="sale-price">¥{{ product.salePrice.toLocaleString() }}(税込)</span>
-              <span class="badge">◎</span>
             </div>
           </template>
           <template v-else-if="product.currentPrice > 0">
             <div class="price-row">
               <span class="label">販売価格</span>
               <span class="current-price">¥{{ product.currentPrice.toLocaleString() }}(税込)</span>
-              <span class="badge">◎</span>
             </div>
           </template>
           <template v-else>
@@ -197,8 +194,8 @@ const formatDate = (dateString) => {
   text-decoration: underline;
 }
 
-.price-section {
-  margin-top: 5px;
+        .price-section {
+  margin-top: auto;
 }
 
 .price-row {
@@ -216,7 +213,7 @@ const formatDate = (dateString) => {
   white-space: nowrap;
 }
 
-.sale-label {
+.label.sale-label {
   background-color: #ff9800;
   color: white;
 }
@@ -255,6 +252,11 @@ const formatDate = (dateString) => {
 @media (max-width: 768px) {
   .product-content {
     flex-direction: column;
+  }
+
+  .price-row{
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

@@ -202,9 +202,9 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: fr;
   }
-}
+} */
 </style>
