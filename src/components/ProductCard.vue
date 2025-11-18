@@ -71,7 +71,7 @@ const handleDelete = () => {
 
 const formatDate = (dateString) => {
   const date = new Date(dateString)
-  return date.toISOString().split('T')[0]
+  return date.split('T')[0]
 }
 </script>
 
