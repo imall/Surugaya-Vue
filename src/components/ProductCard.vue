@@ -70,8 +70,7 @@ const handleDelete = () => {
 }
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.split('T')[0]
+  return dateString.split('T')[0];
 }
 </script>
 
@@ -194,7 +193,7 @@ const formatDate = (dateString) => {
   text-decoration: underline;
 }
 
-        .price-section {
+.price-section {
   margin-top: auto;
 }
 
@@ -254,7 +253,7 @@ const formatDate = (dateString) => {
     flex-direction: column;
   }
 
-  .price-row{
+  .price-row {
     flex-direction: column;
     align-items: flex-start;
   }
