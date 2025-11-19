@@ -3,14 +3,8 @@
     <div class="add-wrapper">
       <button class="add-button" @click="showAdd = !showAdd" :aria-expanded="showAdd">+</button>
       <div v-if="showAdd" class="add-box">
-        <input
-          v-model="newUrl"
-          @keyup.enter="addUrl"
-          @keyup.esc="showAdd = false"
-          type="text"
-          placeholder="貼上商品網址，Enter送出"
-          class="add-input"
-        />
+        <input v-model="newUrl" @keyup.enter="addUrl" @keyup.esc="showAdd = false" type="text"
+          placeholder="貼上商品網址，Enter送出" class="add-input" />
         <button class="add-submit" @click="addUrl" :disabled="adding">送出</button>
         <div class="add-msg" v-if="addError">{{ addError }}</div>
       </div>
@@ -18,6 +12,17 @@
     <div class="header">
       <div class="header-row">
         <h1>駿河屋 願望清單</h1>
+
+        <div class="tabs">
+          <button :class="['tab', { active: selectedTab === 'all' }]" @click="selectedTab = 'all'">全部 ({{ tabCounts.all
+            }})</button>
+          <button :class="['tab', { active: selectedTab === 'uncategorized' }]" @click="selectedTab = 'uncategorized'">未分類
+            ({{ tabCounts.uncategorized }})</button>
+          <button :class="['tab', { active: selectedTab === 'purchase' }]" @click="selectedTab = 'purchase'">購買 ({{
+            tabCounts.purchase }})</button>
+          <button :class="['tab', { active: selectedTab === 'sell' }]" @click="selectedTab = 'sell'">販售 ({{ tabCounts.sell
+            }})</button>
+        </div>
 
         <div class="header-actions">
           <div class="controls">
@@ -28,6 +33,24 @@
               <option value="price-desc">価格: 高い順</option>
               <option value="name-asc">名前: A→Z</option>
               <option value="name-desc">名前: Z→A</option>
+            </select>
+          </div>
+
+          <div class="controls">
+            <label for="series-select" class="label-name">作品で絞る:</label>
+            <select id="series-select" v-model="selectedSeries">
+              <option value="all">全部</option>
+              <option v-for="s in seriesOptions" :key="s" :value="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <div class="controls" v-if="selectedTab === 'all'">
+            <label for="purpose-select" class="label-name">用途:</label>
+            <select id="purpose-select" v-model="purposeFilter">
+              <option value="all">全部</option>
+              <option value="none">未分類</option>
+              <option value="購買">購買</option>
+              <option value="販售">販售</option>
             </select>
           </div>
 
@@ -65,8 +88,8 @@
 
     <div v-else class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.id" :product="product"
-        :is-selected="selectedProducts.includes(product.id)" @toggle-select="toggleProductSelection"
-        @delete="deleteProduct" />
+        :is-selected="selectedProducts.includes(product.id)" :show-purpose="selectedTab === 'all'" @toggle-select="toggleProductSelection"
+        @delete="deleteProduct" @updated="handleUpdated" />
     </div>
   </div>
 </template>
@@ -83,6 +106,29 @@ const selectedProducts = ref([])
 // filters
 const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
+
+// tabs: all | uncategorized | purchase | sell
+const selectedTab = ref('all')
+
+// series filter
+const selectedSeries = ref('all')
+const seriesOptions = computed(() => {
+  const set = new Set()
+  if (!products.value) return []
+  products.value.forEach(p => {
+    const s = (p.seriesName || '').toString().trim()
+    if (s) set.add(s)
+  })
+  return Array.from(set).sort((a, b) => a.localeCompare(b))
+})
+
+const tabCounts = computed(() => {
+  const all = products.value ? products.value.length : 0
+  const uncategorized = products.value ? products.value.filter(p => !p.purposeCategory || String(p.purposeCategory).toLowerCase() === 'none').length : 0
+  const purchase = products.value ? products.value.filter(p => String(p.purposeCategory) === '購買').length : 0
+  const sell = products.value ? products.value.filter(p => String(p.purposeCategory) === '販售').length : 0
+  return { all, uncategorized, purchase, sell }
+})
 
 // add URL panel
 const showAdd = ref(false)
@@ -149,10 +195,32 @@ const getEffectivePrice = (p) => {
 
 const filteredProducts = computed(() => {
   if (!products.value) return []
-  // if no filters selected, return all
-  if (!filterOnSale.value && !filterOutOfStock.value) return [...products.value]
 
-  return products.value.filter(p => {
+  // start from products and apply tab filter
+  let arr = [...products.value]
+  switch (selectedTab.value) {
+    case 'uncategorized':
+      arr = arr.filter(p => !p.purposeCategory || String(p.purposeCategory).toLowerCase() === 'none')
+      break
+    case 'purchase':
+      arr = arr.filter(p => String(p.purposeCategory) === '購買')
+      break
+    case 'sell':
+      arr = arr.filter(p => String(p.purposeCategory) === '販售')
+      break
+    default:
+      break
+  }
+
+  // apply other filters (sale / out of stock)
+  // apply series filter
+  if (selectedSeries.value && selectedSeries.value !== 'all') {
+    arr = arr.filter(p => (p.seriesName || '').toString().trim() === selectedSeries.value)
+  }
+
+  if (!filterOnSale.value && !filterOutOfStock.value) return arr
+
+  return arr.filter(p => {
     const isSale = p.salePrice && Number(p.salePrice) > 0
     const isOutOfStock = !(p.currentPrice && Number(p.currentPrice) > 0)
     return (filterOnSale.value && isSale) || (filterOutOfStock.value && isOutOfStock)
@@ -263,6 +331,15 @@ const deleteSelected = async () => {
 onMounted(() => {
   fetchProducts()
 })
+
+const handleUpdated = (payload) => {
+  // payload: { id, seriesName?, purposeCategory? }
+  const idx = products.value.findIndex(p => p.id === payload.id)
+  if (idx === -1) return
+  const target = products.value[idx]
+  if (payload.seriesName !== undefined) target.seriesName = payload.seriesName
+  if (payload.purposeCategory !== undefined) target.purposeCategory = payload.purposeCategory
+}
 </script>
 
 <style scoped>
@@ -360,7 +437,7 @@ onMounted(() => {
 
 .add-wrapper {
   position: absolute;
-  top: 75px;
+  top: 140px;
   right: 12px;
   z-index: 80;
 }
@@ -370,7 +447,7 @@ onMounted(() => {
   height: 36px;
   border-radius: 10px;
   border: 1px solid #e6e6e6;
-  background: linear-gradient(180deg,#ffffff 0%,#f7f7f7 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
   color: #333;
   font-size: 20px;
   font-weight: 600;
@@ -379,19 +456,19 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 18px rgba(30,30,30,0.06);
+  box-shadow: 0 6px 18px rgba(30, 30, 30, 0.06);
   transition: transform .12s ease, box-shadow .12s ease, background .12s, opacity .12s;
 }
 
 .add-button:hover {
   transform: translateY(-2px);
   background: #f4f6f8;
-  box-shadow: 0 10px 24px rgba(30,30,30,0.08);
+  box-shadow: 0 10px 24px rgba(30, 30, 30, 0.08);
 }
 
 .add-button:focus {
   outline: none;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
 }
 
 .add-box {
@@ -401,7 +478,7 @@ onMounted(() => {
   margin-top: 0;
   background: #fff;
   border: 1px solid #e6e6e6;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   padding: 10px;
   border-radius: 8px;
   display: flex;
@@ -415,8 +492,15 @@ onMounted(() => {
 }
 
 @keyframes pop {
-  from { opacity: 0; transform: scale(.98); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .add-input {
@@ -427,14 +511,14 @@ onMounted(() => {
 }
 
 .add-submit {
-  background: linear-gradient(180deg,#5a5a5a 0%,#3b3b3b 100%);
+  background: linear-gradient(180deg, #5a5a5a 0%, #3b3b3b 100%);
   color: #fff;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.10);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
   transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
 }
 
@@ -447,7 +531,7 @@ onMounted(() => {
 
 .add-submit:hover:enabled {
   transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
 .add-msg {
@@ -543,8 +627,30 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  writing-mode: horizontal-tb; /* force horizontal text */
+  writing-mode: horizontal-tb;
+  /* force horizontal text */
   font-size: 14px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.tab {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tab.active {
+  background: #0066cc;
+  color: white;
+  border-color: #005bb5;
 }
 
 @media (max-width: 600px) {
