@@ -44,16 +44,6 @@
             </select>
           </div>
 
-          <div class="controls" v-if="selectedTab === 'all'">
-            <label for="purpose-select" class="label-name">用途:</label>
-            <select id="purpose-select" v-model="purposeFilter">
-              <option value="all">全部</option>
-              <option value="none">未分類</option>
-              <option value="購買">購買</option>
-              <option value="販售">販售</option>
-            </select>
-          </div>
-
           <div class="controls-and-filters">
             <div class="filters">
               <label class="filter-label">
