@@ -15,12 +15,14 @@
 
         <div class="tabs">
           <button :class="['tab', { active: selectedTab === 'all' }]" @click="selectedTab = 'all'">全部 ({{ tabCounts.all
-            }})</button>
-          <button :class="['tab', { active: selectedTab === 'uncategorized' }]" @click="selectedTab = 'uncategorized'">未分類
+          }})</button>
+          <button :class="['tab', { active: selectedTab === 'uncategorized' }]"
+            @click="selectedTab = 'uncategorized'">未分類
             ({{ tabCounts.uncategorized }})</button>
           <button :class="['tab', { active: selectedTab === 'purchase' }]" @click="selectedTab = 'purchase'">購買 ({{
             tabCounts.purchase }})</button>
-          <button :class="['tab', { active: selectedTab === 'sell' }]" @click="selectedTab = 'sell'">販售 ({{ tabCounts.sell
+          <button :class="['tab', { active: selectedTab === 'sell' }]" @click="selectedTab = 'sell'">販售 ({{
+            tabCounts.sell
             }})</button>
         </div>
 
@@ -78,8 +80,8 @@
 
     <div v-else class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.id" :product="product"
-        :is-selected="selectedProducts.includes(product.id)" :show-purpose="selectedTab === 'all'" @toggle-select="toggleProductSelection"
-        @delete="deleteProduct" @updated="handleUpdated" />
+        :is-selected="selectedProducts.includes(product.id)" :show-purpose="selectedTab === 'all'"
+        @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
   </div>
 </template>

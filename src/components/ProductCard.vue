@@ -5,7 +5,8 @@
 
     <!-- purpose badge (top-left) -->
     <div v-if="showPurpose" class="card-purpose-badge">
-      <span class="purpose-badge">{{ (product.purposeCategory && String(product.purposeCategory).toLowerCase() !== 'none') ? product.purposeCategory : '未分類' }}</span>
+      <span class="purpose-badge">{{ (product.purposeCategory && String(product.purposeCategory).toLowerCase() !==
+        'none') ? product.purposeCategory : '未分類' }}</span>
     </div>
 
     <div class="product-content">
@@ -26,7 +27,7 @@
             <span class="series-text">{{ product.seriesName || '-' }}</span>
           </div>
 
-          
+
 
           <button class="btn-edit" @click="openEditModal">編輯</button>
         </div>
@@ -510,6 +511,7 @@ const onKeyDown = (e) => {
   color: #07516a;
   border: 1px solid #c6eaf6;
 }
+
 .card-purpose-badge {
   position: absolute;
   top: 8px;
@@ -519,7 +521,7 @@ const onKeyDown = (e) => {
 
 .purpose-badge {
   display: inline-block;
-  background: rgba(230,247,255,0.95);
+  background: rgba(230, 247, 255, 0.95);
   color: #07516a;
   border: 1px solid #cfeffb;
   padding: 4px 8px;
