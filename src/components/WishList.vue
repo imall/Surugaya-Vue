@@ -23,11 +23,11 @@
             tabCounts.purchase }})</button>
           <button :class="['tab', { active: selectedTab === 'sell' }]" @click="selectedTab = 'sell'">販售 ({{
             tabCounts.sell
-            }})</button>
+          }})</button>
         </div>
 
         <div class="header-actions">
-          
+
           <div class="controls">
             <label for="sort-select" class="label-name">並び替え:</label>
             <select id="sort-select" v-model="sortOption">
@@ -40,11 +40,9 @@
           </div>
 
           <div class="controls">
-            <label for="series-select" class="label-name">作品で絞る:</label>
-            <select id="series-select" v-model="selectedSeries">
-              <option value="all">全部</option>
-              <option v-for="s in seriesOptions" :key="s" :value="s">{{ s }}</option>
-            </select>
+            <label for="series-search" class="label-name">作品で絞る:</label>
+            <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
+              class="series-search-input" />
           </div>
 
           <div class="controls-and-filters">
@@ -103,16 +101,18 @@ const filterOutOfStock = ref(false)
 // tabs: all | uncategorized | purchase | sell
 const selectedTab = ref('all')
 
-// series filter
-const selectedSeries = ref('all')
-const seriesOptions = computed(() => {
-  const set = new Set()
+// series filter with fuzzy search
+const seriesSearchKeyword = ref('')
+const filteredSeriesList = computed(() => {
   if (!products.value) return []
-  products.value.forEach(p => {
-    const s = (p.seriesName || '').toString().trim()
-    if (s) set.add(s)
+
+  const keyword = seriesSearchKeyword.value.trim().toLowerCase()
+  if (!keyword) return products.value
+
+  return products.value.filter(p => {
+    const seriesName = (p.seriesName || '').toString().toLowerCase()
+    return seriesName.includes(keyword)
   })
-  return Array.from(set).sort((a, b) => a.localeCompare(b))
 })
 
 const tabCounts = computed(() => {
@@ -205,10 +205,13 @@ const filteredProducts = computed(() => {
       break
   }
 
-  // apply other filters (sale / out of stock)
-  // apply series filter
-  if (selectedSeries.value && selectedSeries.value !== 'all') {
-    arr = arr.filter(p => (p.seriesName || '').toString().trim() === selectedSeries.value)
+  // Apply series search filter with fuzzy matching
+  const keyword = seriesSearchKeyword.value.trim().toLowerCase()
+  if (keyword) {
+    arr = arr.filter(p => {
+      const seriesName = (p.seriesName || '').toString().toLowerCase()
+      return seriesName.includes(keyword)
+    })
   }
 
   if (!filterOnSale.value && !filterOutOfStock.value) return arr
@@ -383,6 +386,21 @@ const handleUpdated = (payload) => {
   font-size: 13px;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+.series-search-input {
+  padding: 6px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 180px;
+  transition: border-color 0.2s ease;
+}
+
+.series-search-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
 }
 
 .toolbar {
