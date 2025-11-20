@@ -1,6 +1,5 @@
 <template>
-  <div class="product-card" :class="{ selected: isSelected }" @touchstart="onTouchStart" @touchend="onTouchEnd"
-    @touchcancel="onTouchEnd" @touchmove="onTouchEnd" @keydown="onKeyDown" tabindex="0">
+  <div class="product-card" :class="{ selected: isSelected }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
     <!-- purpose badge (top-left) -->
@@ -268,33 +267,7 @@ const saveAll = async () => {
   }
 }
 
-const clearLongPress = () => {
-  if (longPressTimer.value) {
-    clearTimeout(longPressTimer.value)
-    longPressTimer.value = null
-  }
-}
 
-const onTouchStart = (e) => {
-  if (!touchSupported) return
-  clearLongPress()
-  // 600ms long press
-  longPressTimer.value = setTimeout(() => {
-    openEditModal()
-    longPressTimer.value = null
-  }, 600)
-}
-
-const onTouchEnd = (e) => {
-  clearLongPress()
-}
-
-const onKeyDown = (e) => {
-  // Enter or 'e' opens editor for keyboard users
-  if (e.key === 'Enter' || e.key === 'e' || e.key === 'E') {
-    openEditModal()
-  }
-}
 </script>
 
 <style scoped>
