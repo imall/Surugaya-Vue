@@ -344,6 +344,7 @@ const saveAll = async () => {
   object-fit: contain;
   border: 1px solid #e0e0e0;
   transition: opacity 0.2s ease;
+  vertical-align: middle;
 }
 
 .selected-overlay {
