@@ -22,14 +22,7 @@
         <button class="ellipsis-button" @click.stop="openEditModal" aria-label="編輯項目">⋯</button>
 
         <div class="edit-row">
-          <div class="series-edit">
-            <label class="small-label">作品名:</label>
-            <span class="series-text">{{ product.seriesName || '-' }}</span>
-          </div>
-
-
-
-          <button class="btn-edit" @click="openEditModal">編輯</button>
+          <span class="series-text">{{ product.seriesName }}</span>
         </div>
 
         <div class="price-section">
@@ -259,18 +252,13 @@ const saveAll = async () => {
 
   saving.value = true
   try {
-    // update purpose if changed
-    const oldPurposeUI = uiValueOfBackend(props.product.purposeCategory)
-    if (oldPurposeUI !== newPurpose) {
-      const sendPurpose = backendValueForSend(newPurpose)
-      const qs = `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
-      const res1 = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
-      if (!res1.ok) {
-        const txt = await res1.text()
-        throw new Error(txt || '用途の更新に失敗しました')
-      }
-      emit('updated', { id: props.product.id, purposeCategory: sendPurpose })
+    const qs = `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
+    const res1 = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+    if (!res1.ok) {
+      const txt = await res1.text()
+      throw new Error(txt || '用途の更新に失敗しました')
     }
+    emit('updated', { id: props.product.id, purposeCategory: sendPurpose })
 
     showEditModal.value = false
   } catch (err) {
@@ -410,10 +398,7 @@ const onKeyDown = (e) => {
 }
 
 .edit-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  flex-direction: column;
+  margin-left: 8px;
 }
 
 .small-label {
@@ -431,13 +416,8 @@ const onKeyDown = (e) => {
   width: auto;
 }
 
-.series-edit {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
 .series-text {
+  width: 100%;
   font-size: 13px;
   color: #333;
   max-width: 220px;
@@ -446,7 +426,6 @@ const onKeyDown = (e) => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 
 
 .purpose-badge {
@@ -604,10 +583,6 @@ const onKeyDown = (e) => {
   border: 1px solid rgba(38, 50, 56, 0.06);
 }
 
-/* keep old btn-edit hidden but available if needed */
-.btn-edit {
-  display: none;
-}
 
 /* modal */
 .modal-overlay {
