@@ -149,7 +149,8 @@ const saving = ref(false)
 const longPressTimer = ref(null)
 const touchSupported = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0))
 
-const API_BASE = 'https://surugaya.onrender.com/api/SurugayaDetails'
+const API_Details = 'https://surugaya.onrender.com/api/SurugayaDetails'
+const API_Category = 'https://surugaya.onrender.com/api/SurugayaCategory'
 
 const openEditModal = () => {
   localSeriesName.value = props.product.seriesName || ''
@@ -201,7 +202,7 @@ const savePurposeOnly = async () => {
     const maybeSeries = (localSeriesName.value || '').trim()
     const qs = maybeSeries ? `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(maybeSeries)}` : `?purposeCategory=${encodeURIComponent(sendPurpose)}`
 
-    const res = await fetch(`${API_BASE}/${props.product.id}/purposeCategory${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
     if (!res.ok) {
       const txt = await res.text()
       throw new Error(txt || '用途の更新に失敗しました')
@@ -228,7 +229,7 @@ const saveSeriesOnly = async () => {
   try {
     const sendPurpose = backendValueForSend(newPurpose)
     const qs = `?seriesName=${encodeURIComponent(newSeries)}&purposeCategory=${encodeURIComponent(sendPurpose)}`
-    const res = await fetch(`${API_BASE}/${props.product.id}/seriesName${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+    const res = await fetch(`${API_Category}/${props.product.id}/seriesName${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
     if (!res.ok) {
       const txt = await res.text()
       throw new Error(txt || 'シリーズ名の更新に失敗しました')
@@ -263,24 +264,12 @@ const saveAll = async () => {
     if (oldPurposeUI !== newPurpose) {
       const sendPurpose = backendValueForSend(newPurpose)
       const qs = `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
-      const res1 = await fetch(`${API_BASE}/${props.product.id}/purposeCategory${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+      const res1 = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
       if (!res1.ok) {
         const txt = await res1.text()
         throw new Error(txt || '用途の更新に失敗しました')
       }
       emit('updated', { id: props.product.id, purposeCategory: sendPurpose })
-    }
-
-    // update series if changed
-    if ((props.product.seriesName || '') !== newSeries) {
-      const sendPurpose2 = backendValueForSend(newPurpose)
-      const qs2 = `?seriesName=${encodeURIComponent(newSeries)}&purposeCategory=${encodeURIComponent(sendPurpose2)}`
-      const res2 = await fetch(`${API_BASE}/${props.product.id}/seriesName${qs2}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
-      if (!res2.ok) {
-        const txt = await res2.text()
-        throw new Error(txt || 'シリーズ名の更新に失敗しました')
-      }
-      emit('updated', { id: props.product.id, seriesName: newSeries })
     }
 
     showEditModal.value = false

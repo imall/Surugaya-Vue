@@ -127,7 +127,7 @@ const showAdd = ref(false)
 const newUrl = ref('')
 const adding = ref(false)
 const addError = ref('')
-const API_URL = 'https://surugaya.onrender.com/api/Surugaya'
+const API_URL = 'https://surugaya.onrender.com/api/SurugayaUrls'
 
 const addUrl = async () => {
   if (!newUrl.value || adding.value) return
@@ -277,7 +277,7 @@ const deleteProduct = async (productId) => {
   }
 
   try {
-    const response = await fetch(`https://surugaya.onrender.com/api/Surugaya/${productId}`, {
+    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${productId}`, {
       method: 'DELETE'
     })
 
@@ -304,7 +304,7 @@ const deleteSelected = async () => {
   }
 
   const deletePromises = selectedProducts.value.map(id =>
-    fetch(`https://surugaya.onrender.com/api/Surugaya/${id}`, {
+    fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${id}`, {
       method: 'DELETE'
     })
   )
