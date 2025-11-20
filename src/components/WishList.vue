@@ -85,6 +85,7 @@
 
     <div v-else class="loading">
       商品が見つかりませんでした。
+    </div>
   </div>
 </template>
 
