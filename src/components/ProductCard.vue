@@ -252,13 +252,13 @@ const saveAll = async () => {
 
   saving.value = true
   try {
-    const qs = `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
+    const qs = `?purposeCategory=${encodeURIComponent(newPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
     const res1 = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
     if (!res1.ok) {
       const txt = await res1.text()
       throw new Error(txt || '用途の更新に失敗しました')
     }
-    emit('updated', { id: props.product.id, purposeCategory: sendPurpose })
+    emit('updated', { id: props.product.id, purposeCategory: newPurpose , seriesName: newSeries })
 
     showEditModal.value = false
   } catch (err) {

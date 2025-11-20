@@ -27,6 +27,7 @@
         </div>
 
         <div class="header-actions">
+          
           <div class="controls">
             <label for="sort-select" class="label-name">並び替え:</label>
             <select id="sort-select" v-model="sortOption">
