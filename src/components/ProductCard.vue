@@ -415,10 +415,9 @@ const onKeyDown = (e) => {
 
 .series-text {
   width: 100%;
+  text-align: start;
   font-size: 13px;
   color: #333;
-  max-width: 220px;
-  display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
