@@ -77,11 +77,14 @@
       エラーが発生しました: {{ error }}
     </div>
 
-    <div v-else class="product-grid">
+    <div v-else-if="sortedProducts.length !== 0" class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.id" :product="product"
         :is-selected="selectedProducts.includes(product.id)" :show-purpose="selectedTab === 'all'"
         @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
+
+    <div v-else class="loading">
+      商品が見つかりませんでした。
   </div>
 </template>
 
