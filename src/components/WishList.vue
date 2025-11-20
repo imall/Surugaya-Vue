@@ -27,24 +27,23 @@
         </div>
 
         <div class="header-actions">
-
-          <div class="controls">
-            <label for="sort-select" class="label-name">並び替え:</label>
-            <select id="sort-select" v-model="sortOption">
-              <option value="default">デフォルト</option>
-              <option value="price-asc">価格: 低い順</option>
-              <option value="price-desc">価格: 高い順</option>
-              <option value="name-asc">名前: A→Z</option>
-              <option value="name-desc">名前: Z→A</option>
-            </select>
+          <div class="controls-wrap">
+            <div class="controls">
+              <label for="sort-select" class="label-name">並び替え:</label>
+              <select id="sort-select" v-model="sortOption">
+                <option value="default">デフォルト</option>
+                <option value="price-asc">価格: 低い順</option>
+                <option value="price-desc">価格: 高い順</option>
+                <option value="name-asc">名前: A→Z</option>
+                <option value="name-desc">名前: Z→A</option>
+              </select>
+            </div>
+            <div class="controls">
+              <label for="series-search" class="label-name">作品で絞る:</label>
+              <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
+                class="series-search-input" />
+            </div>
           </div>
-
-          <div class="controls">
-            <label for="series-search" class="label-name">作品で絞る:</label>
-            <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
-              class="series-search-input" />
-          </div>
-
           <div class="controls-and-filters">
             <div class="filters">
               <label class="filter-label">
@@ -452,7 +451,7 @@ const handleUpdated = (payload) => {
 
 .add-wrapper {
   position: absolute;
-  top: 140px;
+  top: 130px;
   right: 12px;
   z-index: 80;
 }
@@ -579,6 +578,10 @@ const handleUpdated = (payload) => {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
+
+  .label-name {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -596,6 +599,10 @@ const handleUpdated = (payload) => {
 }
 
 @media (max-width: 768px) {
+  .add-wrapper {
+    top: 145px;
+  }
+
   .header-row {
     flex-direction: column;
     align-items: flex-start;
@@ -611,17 +618,13 @@ const handleUpdated = (payload) => {
     width: 100%;
     justify-content: flex-start;
   }
-}
 
-@media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .label-name {
-    display: none;
-  }
 }
+
+@media (max-width: 768px) {}
 
 /* Responsive layout for filters */
 .controls-and-filters {
@@ -668,7 +671,21 @@ const handleUpdated = (payload) => {
   border-color: #005bb5;
 }
 
+.controls-wrap {
+  display: flex;
+  gap: 8px;
+}
+
 @media (max-width: 600px) {
+
+  .controls-wrap {
+    width: 80%;
+  }
+
+  .controls-wrap :last-child {
+    width: 100%;
+  }
+
   .header-actions {
     flex-direction: column;
     align-items: flex-start;
