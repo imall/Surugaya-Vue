@@ -21,9 +21,8 @@
         </a>
         <button class="ellipsis-button" @click.stop="openEditModal" aria-label="編輯項目">⋯</button>
 
-        <div class="edit-row">
-          <span class="series-text">{{ product.seriesName }}</span>
-        </div>
+        <div class="series-text">{{ product.seriesName }}</div>
+
 
         <div class="price-section">
           <template v-if="product.salePrice">
@@ -258,7 +257,7 @@ const saveAll = async () => {
       const txt = await res1.text()
       throw new Error(txt || '用途の更新に失敗しました')
     }
-    emit('updated', { id: props.product.id, purposeCategory: newPurpose , seriesName: newSeries })
+    emit('updated', { id: props.product.id, purposeCategory: newPurpose, seriesName: newSeries })
 
     showEditModal.value = false
   } catch (err) {
@@ -395,11 +394,9 @@ const onKeyDown = (e) => {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  align-items: start;
 }
 
-.edit-row {
-  margin-left: 8px;
-}
 
 .small-label {
   font-size: 14px;
@@ -517,8 +514,6 @@ const onKeyDown = (e) => {
   font-size: 14px;
 }
 
-
-/* Edit button hidden by default to avoid突兀 on mobile; shown on hover/focus for desktop */
 .ellipsis-button {
   background: rgba(0, 0, 0, 0.02);
   border: 1px solid rgba(0, 0, 0, 0.04);
@@ -526,10 +521,10 @@ const onKeyDown = (e) => {
   font-size: 16px;
   line-height: 1;
   padding: 4px 8px;
-  margin-left: 8px;
   color: #4f5b62;
   opacity: 0.95;
   cursor: pointer;
+  align-self: stretch;
 }
 
 .ellipsis-button:focus,
