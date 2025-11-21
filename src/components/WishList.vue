@@ -77,8 +77,8 @@
     </div>
 
     <div v-else-if="sortedProducts.length !== 0" class="product-grid">
-      <ProductCard v-for="product in sortedProducts" :key="product.id" :product="product"
-        :is-selected="selectedProducts.includes(product.id)" :show-purpose="selectedTab === 'all'"
+      <ProductCard v-for="product in sortedProducts" :key="product.URL" :product="product"
+        :is-selected="selectedProducts.includes(product.URL)" :show-purpose="selectedTab === 'all'"
         @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 
@@ -106,17 +106,6 @@ const selectedTab = ref('all')
 
 // series filter with fuzzy search
 const seriesSearchKeyword = ref('')
-const filteredSeriesList = computed(() => {
-  if (!products.value) return []
-
-  const keyword = seriesSearchKeyword.value.trim().toLowerCase()
-  if (!keyword) return products.value
-
-  return products.value.filter(p => {
-    const seriesName = (p.seriesName || '').toString().toLowerCase()
-    return seriesName.includes(keyword)
-  })
-})
 
 const tabCounts = computed(() => {
   const all = products.value ? products.value.length : 0
