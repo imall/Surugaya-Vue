@@ -32,7 +32,7 @@
               <label for="sort-select" class="label-name">並び替え:</label>
               <select id="sort-select" v-model="sortOption">
                 <option value="default">デフォルト</option>
-                <option value="price-asc">価格: 低い順</option>
+                <option value="price-asc">価格: 安い順</option>
                 <option value="price-desc">価格: 高い順</option>
                 <option value="name-asc">名前: A→Z</option>
                 <option value="name-desc">名前: Z→A</option>
@@ -272,26 +272,26 @@ const deleteProduct = async (url) => {
     return
   }
 
-    try {
-      const response = await fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${encodeURIComponent(url)}`, {
-        method: 'DELETE'
-      })
+  try {
+    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${encodeURIComponent(url)}`, {
+      method: 'DELETE'
+    })
 
-      if (!response.ok) {
-        throw new Error('削除に失敗しました')
-      }
-
-      // 成功したらリスト從 URL 比對刪除
-      products.value = products.value.filter(p => p.url !== url)
-      // 從已選擇列表移除
-      const index = selectedProducts.value.indexOf(url)
-      if (index > -1) {
-        selectedProducts.value.splice(index, 1)
-      }
-    } catch (err) {
-      alert('エラーが発生しました: ' + err.message)
-      console.error('Error deleting product:', err)
+    if (!response.ok) {
+      throw new Error('削除に失敗しました')
     }
+
+    // 成功したらリスト從 URL 比對刪除
+    products.value = products.value.filter(p => p.url !== url)
+    // 從已選擇列表移除
+    const index = selectedProducts.value.indexOf(url)
+    if (index > -1) {
+      selectedProducts.value.splice(index, 1)
+    }
+  } catch (err) {
+    alert('エラーが発生しました: ' + err.message)
+    console.error('Error deleting product:', err)
+  }
 }
 
 const deleteSelected = async () => {
