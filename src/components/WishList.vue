@@ -77,8 +77,8 @@
     </div>
 
     <div v-else-if="sortedProducts.length !== 0" class="product-grid">
-      <ProductCard v-for="product in sortedProducts" :key="product.URL" :product="product"
-        :is-selected="selectedProducts.includes(product.URL)" :show-purpose="selectedTab === 'all'"
+      <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
+        :is-selected="selectedProducts.includes(product.url)" :show-purpose="selectedTab === 'all'"
         @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 
@@ -258,40 +258,40 @@ const fetchProducts = async () => {
   }
 }
 
-const toggleProductSelection = (productId) => {
-  const index = selectedProducts.value.indexOf(productId)
+const toggleProductSelection = (url) => {
+  const index = selectedProducts.value.indexOf(url)
   if (index > -1) {
     selectedProducts.value.splice(index, 1)
   } else {
-    selectedProducts.value.push(productId)
+    selectedProducts.value.push(url)
   }
 }
 
-const deleteProduct = async (productId) => {
+const deleteProduct = async (url) => {
   if (!confirm('この商品を削除してもよろしいですか？')) {
     return
   }
 
-  try {
-    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${productId}`, {
-      method: 'DELETE'
-    })
+    try {
+      const response = await fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${encodeURIComponent(url)}`, {
+        method: 'DELETE'
+      })
 
-    if (!response.ok) {
-      throw new Error('削除に失敗しました')
-    }
+      if (!response.ok) {
+        throw new Error('削除に失敗しました')
+      }
 
-    // 成功したらリストから削除
-    products.value = products.value.filter(p => p.id !== productId)
-    // 選択リストからも削除
-    const index = selectedProducts.value.indexOf(productId)
-    if (index > -1) {
-      selectedProducts.value.splice(index, 1)
+      // 成功したらリスト從 URL 比對刪除
+      products.value = products.value.filter(p => p.url !== url)
+      // 從已選擇列表移除
+      const index = selectedProducts.value.indexOf(url)
+      if (index > -1) {
+        selectedProducts.value.splice(index, 1)
+      }
+    } catch (err) {
+      alert('エラーが発生しました: ' + err.message)
+      console.error('Error deleting product:', err)
     }
-  } catch (err) {
-    alert('エラーが発生しました: ' + err.message)
-    console.error('Error deleting product:', err)
-  }
 }
 
 const deleteSelected = async () => {
@@ -299,16 +299,16 @@ const deleteSelected = async () => {
     return
   }
 
-  const deletePromises = selectedProducts.value.map(id =>
-    fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${id}`, {
+  const deletePromises = selectedProducts.value.map(url =>
+    fetch(`https://surugaya.onrender.com/api/SurugayaUrls/${encodeURIComponent(url)}`, {
       method: 'DELETE'
     })
   )
 
   try {
     await Promise.all(deletePromises)
-    // 成功したら選択された商品をリストから削除
-    products.value = products.value.filter(p => !selectedProducts.value.includes(p.id))
+    // 成功したら選択された商品をリストから削除（以 URL 為 key）
+    products.value = products.value.filter(p => !selectedProducts.value.includes(p.url))
     selectedProducts.value = []
   } catch (err) {
     alert('削除中にエラーが発生しました: ' + err.message)

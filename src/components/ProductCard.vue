@@ -109,11 +109,13 @@ const props = defineProps({
 const emit = defineEmits(['toggle-select', 'delete', 'updated'])
 
 const handleToggleSelect = () => {
-  emit('toggle-select', props.product.id)
+  // use full URL (lowercase `url`) as the key for selection to avoid ambiguity across marketplaces
+  emit('toggle-select', props.product.url)
 }
 
 const handleDelete = () => {
-  emit('delete', props.product.id)
+  // emit URL so parent can delete by url key
+  emit('delete', props.product.url)
 }
 
 const formatDate = (dateString) => {
