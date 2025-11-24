@@ -288,7 +288,7 @@ const fetchProducts = async () => {
     
     // 檢查 localStorage 快取
     const cachedData = localStorage.getItem(CACHE_KEY)
-    if (cachedData) {
+    if (false) {
       try {
         const { data, timestamp } = JSON.parse(cachedData)
         const now = Date.now()
