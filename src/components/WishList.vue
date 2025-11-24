@@ -91,6 +91,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import ProductCard from './ProductCard.vue'
+import { getCategoryIds } from '@/utils/categoryMap'
 
 const products = ref([])
 const loading = ref(true)
@@ -109,17 +110,18 @@ const seriesSearchKeyword = ref('')
 
 const tabCounts = computed(() => {
   if (!products.value) {
-    return { all: 0, 0: 0, 1: 0, 2: 0, 3: 0 }
+    const defaultCounts = { all: 0 }
+    getCategoryIds().forEach(id => {
+      defaultCounts[id] = 0
+    })
+    return defaultCounts
   }
 
-  const all = products.value.length
-  const counts = {
-    all,
-    0: products.value.filter(p => p.purposeCategoryId === 0).length,
-    1: products.value.filter(p => p.purposeCategoryId === 1).length,
-    2: products.value.filter(p => p.purposeCategoryId === 2).length,
-    3: products.value.filter(p => p.purposeCategoryId === 3).length
-  }
+  const counts = { all: products.value.length }
+
+  getCategoryIds().forEach(id => {
+    counts[id] = products.value.filter(p => p.purposeCategoryId === id).length
+  })
 
   return counts
 })
@@ -321,10 +323,11 @@ onMounted(() => {
 })
 
 const handleUpdated = (payload) => {
- 
-  
+
+
   const idx = products.value.findIndex(p => {
-    return p.id === payload.id})
+    return p.id === payload.id
+  })
   if (idx === -1) return
   const target = products.value[idx]
   if (payload.seriesName !== undefined) target.seriesName = payload.seriesName

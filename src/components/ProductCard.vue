@@ -62,10 +62,9 @@
           <label class="small-label">用途</label>
           <div class="field-action-row">
             <select v-model="localPurposeCategoryId" class="purpose-select">
-              <option :value="0">未分類</option>
-              <option :value="1">購買</option>
-              <option :value="2">考慮</option>
-              <option :value="3">購物車</option>
+              <option v-for="id in getCategoryIds()" :key="id" :value="id">
+                {{ getCategoryText(id) }}
+              </option>
             </select>
             <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
           </div>
@@ -90,6 +89,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { getCategoryText, isValidCategoryId, getCategoryIds } from '@/utils/categoryMap'
 
 const props = defineProps({
   product: {
@@ -127,23 +127,7 @@ const showEditModal = ref(false)
 const localSeriesName = ref(props.product.seriesName || '')
 const localPurposeCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const saving = ref(false)
-const longPressTimer = ref(null)
-const touchSupported = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0))
-
-const API_Details = 'https://surugaya.onrender.com/api/SurugayaDetails'
 const API_Category = 'https://surugaya.onrender.com/api/SurugayaCategory'
-
-// 根據 purposeCategoryId 取得顯示文字
-const getCategoryText = (categoryId) => {
-  const categoryMap = {
-    0: '未分類',
-    1: '購買',
-    2: '考慮',
-    3: '購物車'
-  }
-
-  return categoryMap[categoryId ?? 0] ?? '未分類'
-}
 
 const openEditModal = () => {
   localSeriesName.value = props.product.seriesName || ''
@@ -179,7 +163,7 @@ const savePurposeOnly = async () => {
   const newPurposeCategoryId = localPurposeCategoryId.value
 
   // 驗證 ID 範圍
-  if (![0, 1, 2, 3].includes(newPurposeCategoryId)) {
+  if (!isValidCategoryId(newPurposeCategoryId)) {
     alert('用途選擇無效')
     return
   }
@@ -258,7 +242,7 @@ const saveAll = async () => {
   const newPurposeCategoryId = localPurposeCategoryId.value
 
   // 驗證 ID 範圍
-  if (![0, 1, 2, 3].includes(newPurposeCategoryId)) {
+  if (!isValidCategoryId(newPurposeCategoryId)) {
     alert('用途選擇無效')
     return
   }
