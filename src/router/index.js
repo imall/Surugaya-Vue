@@ -3,10 +3,6 @@ import WishList from '../components/WishList.vue'
 
 const routes = [
   {
-    path: '/',
-    redirect: '/all'
-  },
-  {
     path: '/:category?',
     name: 'wishlist',
     component: WishList,
