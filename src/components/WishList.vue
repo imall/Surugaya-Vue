@@ -78,8 +78,8 @@
 
     <div v-else-if="sortedProducts.length !== 0" class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
-        :is-selected="selectedProducts.includes(product.url)" 
-        @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
+        :is-selected="selectedProducts.includes(product.url)" @toggle-select="toggleProductSelection"
+        @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 
     <div v-else class="loading">
@@ -89,9 +89,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import ProductCard from './ProductCard.vue'
-import { getCategoryIds } from '@/utils/categoryMap'
+import { getCategoryIds, getCategoryRoute, getCategoryIdFromRoute } from '@/utils/categoryMap'
+
+const router = useRouter()
+const route = useRoute()
 
 const products = ref([])
 const loading = ref(true)
@@ -103,7 +107,35 @@ const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
 
 // tabs: null (全部) | 0 (未分類) | 1 (購買) | 2 (考慮) | 3 (購物車)
-const selectedTab = ref(null)
+// 從路由初始化 selectedTab
+const getCategoryFromRoute = () => {
+  const category = route.params.category
+  if (!category || category === 'all') return null
+
+  // 使用英文路由名稱轉換為 ID
+  return getCategoryIdFromRoute(category)
+}
+
+const selectedTab = ref(getCategoryFromRoute())
+
+// 監聽路由變化
+watch(() => route.params.category, () => {
+  selectedTab.value = getCategoryFromRoute()
+})
+
+// 監聽 tab 變化，更新路由
+watch(selectedTab, (newTab) => {
+  let categoryPath = 'all'
+
+  if (newTab !== null) {
+    categoryPath = getCategoryRoute(newTab)
+  }
+
+  // 只在路由不同時才導航，避免無限循環
+  if (route.params.category !== categoryPath) {
+    router.push(`/${categoryPath}`)
+  }
+})
 
 // series filter with fuzzy search
 const seriesSearchKeyword = ref('')
