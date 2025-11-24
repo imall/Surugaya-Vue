@@ -14,16 +14,16 @@
         <h1>駿河屋 願望清單</h1>
 
         <div class="tabs">
-          <button :class="['tab', { active: selectedTab === 'all' }]" @click="selectedTab = 'all'">全部 ({{ tabCounts.all
-          }})</button>
-          <button :class="['tab', { active: selectedTab === 'uncategorized' }]"
-            @click="selectedTab = 'uncategorized'">未分類
-            ({{ tabCounts.uncategorized }})</button>
-          <button :class="['tab', { active: selectedTab === 'purchase' }]" @click="selectedTab = 'purchase'">購買 ({{
-            tabCounts.purchase }})</button>
-          <button :class="['tab', { active: selectedTab === 'sell' }]" @click="selectedTab = 'sell'">販售 ({{
-            tabCounts.sell
-          }})</button>
+          <button :class="['tab', { active: selectedTab === null }]" @click="selectedTab = null">全部 ({{
+            tabCounts.all }})</button>
+          <button :class="['tab', { active: selectedTab === 0 }]" @click="selectedTab = 0">未分類 ({{
+            tabCounts[0] }})</button>
+          <button :class="['tab', { active: selectedTab === 1 }]" @click="selectedTab = 1">購買 ({{
+            tabCounts[1] }})</button>
+          <button :class="['tab', { active: selectedTab === 2 }]" @click="selectedTab = 2">考慮 ({{
+            tabCounts[2] }})</button>
+          <button :class="['tab', { active: selectedTab === 3 }]" @click="selectedTab = 3">購物車 ({{
+            tabCounts[3] }})</button>
         </div>
 
         <div class="header-actions">
@@ -78,7 +78,7 @@
 
     <div v-else-if="sortedProducts.length !== 0" class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
-        :is-selected="selectedProducts.includes(product.url)" :show-purpose="selectedTab === 'all'"
+        :is-selected="selectedProducts.includes(product.url)" :show-purpose="selectedTab === null"
         @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 
@@ -101,18 +101,27 @@ const selectedProducts = ref([])
 const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
 
-// tabs: all | uncategorized | purchase | sell
-const selectedTab = ref('all')
+// tabs: null (全部) | 0 (未分類) | 1 (購買) | 2 (考慮) | 3 (購物車)
+const selectedTab = ref(null)
 
 // series filter with fuzzy search
 const seriesSearchKeyword = ref('')
 
 const tabCounts = computed(() => {
-  const all = products.value ? products.value.length : 0
-  const uncategorized = products.value ? products.value.filter(p => !p.purposeCategory || String(p.purposeCategory).toLowerCase() === 'none').length : 0
-  const purchase = products.value ? products.value.filter(p => String(p.purposeCategory) === '購買').length : 0
-  const sell = products.value ? products.value.filter(p => String(p.purposeCategory) === '販售').length : 0
-  return { all, uncategorized, purchase, sell }
+  if (!products.value) {
+    return { all: 0, 0: 0, 1: 0, 2: 0, 3: 0 }
+  }
+
+  const all = products.value.length
+  const counts = {
+    all,
+    0: products.value.filter(p => p.purposeCategoryId === 0).length,
+    1: products.value.filter(p => p.purposeCategoryId === 1).length,
+    2: products.value.filter(p => p.purposeCategoryId === 2).length,
+    3: products.value.filter(p => p.purposeCategoryId === 3).length
+  }
+
+  return counts
 })
 
 // add URL panel
@@ -181,20 +190,11 @@ const getEffectivePrice = (p) => {
 const filteredProducts = computed(() => {
   if (!products.value) return []
 
-  // start from products and apply tab filter
   let arr = [...products.value]
-  switch (selectedTab.value) {
-    case 'uncategorized':
-      arr = arr.filter(p => !p.purposeCategory || String(p.purposeCategory).toLowerCase() === 'none')
-      break
-    case 'purchase':
-      arr = arr.filter(p => String(p.purposeCategory) === '購買')
-      break
-    case 'sell':
-      arr = arr.filter(p => String(p.purposeCategory) === '販售')
-      break
-    default:
-      break
+
+  // 根據 purposeCategoryId 篩選
+  if (selectedTab.value !== null) {
+    arr = arr.filter(p => p.purposeCategoryId === selectedTab.value)
   }
 
   // Apply series search filter with fuzzy matching
