@@ -4,8 +4,7 @@
 
     <!-- purpose badge (top-left) -->
     <div v-if="showPurpose" class="card-purpose-badge">
-      <span class="purpose-badge">{{ (product.purposeCategory && String(product.purposeCategory).toLowerCase() !==
-        'none') ? product.purposeCategory : '未分類' }}</span>
+      <span class="purpose-badge">{{ getCategoryText(product.purposeCategoryId) }}</span>
     </div>
 
     <div class="product-content">
@@ -62,10 +61,11 @@
         <div class="modal-row field-with-action">
           <label class="small-label">用途</label>
           <div class="field-action-row">
-            <select v-model="localPurpose" class="purpose-select">
-              <option value="none">未分類</option>
-              <option value="購買">購買</option>
-              <option value="販售">販售</option>
+            <select v-model="localPurposeCategoryId" class="purpose-select">
+              <option :value="0">未分類</option>
+              <option :value="1">購買</option>
+              <option :value="2">考慮</option>
+              <option :value="3">購物車</option>
             </select>
             <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
           </div>
@@ -125,19 +125,7 @@ const formatDate = (dateString) => {
 // modal edit state
 const showEditModal = ref(false)
 const localSeriesName = ref(props.product.seriesName || '')
-const uiValueOfBackend = (v) => {
-  if (!v) return 'none'
-  const s = String(v).toLowerCase()
-  if (s === 'none') return 'none'
-  return v
-}
-const backendValueForSend = (uiVal) => {
-  if (!uiVal) return 'None'
-  if (String(uiVal).toLowerCase() === 'none') return 'None'
-  return uiVal
-}
-// default to 'none' (UI) when backend has none/None
-const localPurpose = ref(uiValueOfBackend(props.product.purposeCategory))
+const localPurposeCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const saving = ref(false)
 const longPressTimer = ref(null)
 const touchSupported = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0))
@@ -145,9 +133,21 @@ const touchSupported = (typeof window !== 'undefined') && (('ontouchstart' in wi
 const API_Details = 'https://surugaya.onrender.com/api/SurugayaDetails'
 const API_Category = 'https://surugaya.onrender.com/api/SurugayaCategory'
 
+// 根據 purposeCategoryId 取得顯示文字
+const getCategoryText = (categoryId) => {
+  const categoryMap = {
+    0: '未分類',
+    1: '購買',
+    2: '考慮',
+    3: '購物車'
+  }
+
+  return categoryMap[categoryId ?? 0] ?? '未分類'
+}
+
 const openEditModal = () => {
   localSeriesName.value = props.product.seriesName || ''
-  localPurpose.value = uiValueOfBackend(props.product.purposeCategory)
+  localPurposeCategoryId.value = props.product.purposeCategoryId ?? 0
   showEditModal.value = true
 }
 
@@ -176,31 +176,43 @@ const parseErrorMessage = (err) => {
 }
 
 const savePurposeOnly = async () => {
-  const newPurpose = (localPurpose.value || '').toString()
-  if (newPurpose !== 'none' && newPurpose !== '購買' && newPurpose !== '販售') {
-    alert('用途請選擇「購買」或「販售」或「未分類」')
+  const newPurposeCategoryId = localPurposeCategoryId.value
+
+  // 驗證 ID 範圍
+  if (![0, 1, 2, 3].includes(newPurposeCategoryId)) {
+    alert('用途選擇無效')
     return
   }
 
   saving.value = true
   try {
-    const oldPurposeUI = uiValueOfBackend(props.product.purposeCategory)
-    if (oldPurposeUI === newPurpose) {
+    // 檢查是否有變更
+    if (props.product.purposeCategoryId === newPurposeCategoryId) {
       saving.value = false
       showEditModal.value = false
       return
     }
 
-    const sendPurpose = backendValueForSend(newPurpose)
-    const maybeSeries = (localSeriesName.value || '').trim()
-    const qs = maybeSeries ? `?purposeCategory=${encodeURIComponent(sendPurpose)}&seriesName=${encodeURIComponent(maybeSeries)}` : `?purposeCategory=${encodeURIComponent(sendPurpose)}`
+    const qs = `?purposeCategory=${newPurposeCategoryId}`;
 
-    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, {
+      method: 'PATCH',
+      headers: { 'Accept': 'application/json' }
+    })
+
     if (!res.ok) {
       const txt = await res.text()
       throw new Error(txt || '用途の更新に失敗しました')
     }
-    emit('updated', { id: props.product.id, purposeCategory: sendPurpose })
+
+    // 從回應中取得更新後的資料
+    const updatedData = await res.json()
+    emit('updated', {
+      id: props.product.id,
+      purposeCategoryId: updatedData.purposeCategoryId,
+      purposeCategory: updatedData.purposeCategory
+    })
+
     showEditModal.value = false
   } catch (err) {
     alert('更新用途時發生錯誤: ' + parseErrorMessage(err))
@@ -212,7 +224,7 @@ const savePurposeOnly = async () => {
 
 const saveSeriesOnly = async () => {
   const newSeries = (localSeriesName.value || '').trim()
-  const newPurpose = (localPurpose.value || '').toString()
+  const newPurposeCategoryId = localPurposeCategoryId.value
 
   if (!newSeries) {
     if (!confirm('作品名為空，確定要清空嗎？')) return
@@ -220,13 +232,17 @@ const saveSeriesOnly = async () => {
 
   saving.value = true
   try {
-    const sendPurpose = backendValueForSend(newPurpose)
-    const qs = `?seriesName=${encodeURIComponent(newSeries)}&purposeCategory=${encodeURIComponent(sendPurpose)}`
-    const res = await fetch(`${API_Category}/${props.product.id}/seriesName${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
+    const qs = `?seriesName=${encodeURIComponent(newSeries)}`
+    const res = await fetch(`${API_Category}/${props.product.id}/seriesName${qs}`, {
+      method: 'PATCH',
+      headers: { 'Accept': 'application/json' }
+    })
+
     if (!res.ok) {
       const txt = await res.text()
       throw new Error(txt || 'シリーズ名の更新に失敗しました')
     }
+
     emit('updated', { id: props.product.id, seriesName: newSeries })
     showEditModal.value = false
   } catch (err) {
@@ -239,10 +255,11 @@ const saveSeriesOnly = async () => {
 
 const saveAll = async () => {
   const newSeries = (localSeriesName.value || '').trim()
-  const newPurpose = (localPurpose.value || '').toString()
+  const newPurposeCategoryId = localPurposeCategoryId.value
 
-  if (newPurpose !== 'none' && newPurpose !== '購買' && newPurpose !== '販售') {
-    alert('用途請選擇「購買」或「販售」或「未分類」')
+  // 驗證 ID 範圍
+  if (![0, 1, 2, 3].includes(newPurposeCategoryId)) {
+    alert('用途選擇無效')
     return
   }
 
@@ -252,13 +269,25 @@ const saveAll = async () => {
 
   saving.value = true
   try {
-    const qs = `?purposeCategory=${encodeURIComponent(newPurpose)}&seriesName=${encodeURIComponent(newSeries)}`
-    const res1 = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, { method: 'PATCH', headers: { 'Accept': 'application/json' } })
-    if (!res1.ok) {
-      const txt = await res1.text()
-      throw new Error(txt || '用途の更新に失敗しました')
+    const qs = `?purposeCategory=${newPurposeCategoryId}&seriesName=${encodeURIComponent(newSeries)}`
+    const res = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, {
+      method: 'PATCH',
+      headers: { 'Accept': 'application/json' }
+    })
+
+    if (!res.ok) {
+      const txt = await res.text()
+      throw new Error(txt || '更新に失敗しました')
     }
-    emit('updated', { id: props.product.id, purposeCategory: newPurpose, seriesName: newSeries })
+
+    // 從回應中取得更新後的資料
+    const updatedData = await res.json()
+    emit('updated', {
+      id: props.product.id,
+      purposeCategoryId: updatedData.purposeCategoryId,
+      purposeCategory: updatedData.purposeCategory,
+      seriesName: newSeries
+    })
 
     showEditModal.value = false
   } catch (err) {

@@ -321,11 +321,14 @@ onMounted(() => {
 })
 
 const handleUpdated = (payload) => {
-  // payload: { id, seriesName?, purposeCategory? }
-  const idx = products.value.findIndex(p => p.id === payload.id)
+ 
+  
+  const idx = products.value.findIndex(p => {
+    return p.id === payload.id})
   if (idx === -1) return
   const target = products.value[idx]
   if (payload.seriesName !== undefined) target.seriesName = payload.seriesName
+  if (payload.purposeCategoryId !== undefined) target.purposeCategoryId = payload.purposeCategoryId
   if (payload.purposeCategory !== undefined) target.purposeCategory = payload.purposeCategory
 }
 </script>
