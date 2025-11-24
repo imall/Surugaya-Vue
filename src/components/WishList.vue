@@ -165,6 +165,15 @@ const adding = ref(false)
 const addError = ref('')
 const API_URL = 'https://surugaya.onrender.com/api/SurugayaUrls'
 
+// 快取相關常數和函數
+const CACHE_KEY = 'surugaya_products_cache'
+const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6 小時（毫秒）
+
+const clearCache = () => {
+  localStorage.removeItem(CACHE_KEY)
+  console.log('快取已清除')
+}
+
 const addUrl = async () => {
   if (!newUrl.value || adding.value) return
   addError.value = ''
@@ -195,6 +204,7 @@ const addUrl = async () => {
     // 成功: 清空輸入並重新載入列表
     newUrl.value = ''
     showAdd.value = false
+    clearCache() // 清除快取
     await fetchProducts()
   } catch (err) {
     addError.value = err.message || String(err)
@@ -275,6 +285,29 @@ const sortedProducts = computed(() => {
 const fetchProducts = async () => {
   try {
     loading.value = true
+    
+    // 檢查 localStorage 快取
+    const cachedData = localStorage.getItem(CACHE_KEY)
+    if (cachedData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedData)
+        const now = Date.now()
+        
+        // 檢查快取是否在有效期內
+        if (now - timestamp < CACHE_DURATION) {
+          console.log('使用快取資料')
+          products.value = data
+          loading.value = false
+          return
+        } else {
+          console.log('快取已過期，重新載入')
+        }
+      } catch (e) {
+        console.error('快取資料解析失敗:', e)
+      }
+    }
+    
+    // 快取不存在或已過期，從 API 取得資料
     const response = await fetch('https://surugaya.onrender.com/api/SurugayaDetails')
 
     if (!response.ok) {
@@ -282,6 +315,23 @@ const fetchProducts = async () => {
     }
 
     const data = await response.json()
+    
+    // 儲存到 localStorage
+    try {
+      const cacheObject = {
+        data: data,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObject))
+      console.log('資料已快取')
+    } catch (e) {
+      console.error('無法儲存快取:', e)
+      // 如果 localStorage 滿了，清除舊快取
+      if (e.name === 'QuotaExceededError') {
+        localStorage.removeItem(CACHE_KEY)
+      }
+    }
+    
     // 直接使用 API 回傳的資料（包含 id）
     products.value = data
   } catch (err) {
@@ -322,6 +372,7 @@ const deleteProduct = async (url) => {
     if (index > -1) {
       selectedProducts.value.splice(index, 1)
     }
+    clearCache() // 清除快取
   } catch (err) {
     alert('エラーが発生しました: ' + err.message)
     console.error('Error deleting product:', err)
@@ -344,6 +395,7 @@ const deleteSelected = async () => {
     // 成功したら選択された商品をリストから削除（以 URL 為 key）
     products.value = products.value.filter(p => !selectedProducts.value.includes(p.url))
     selectedProducts.value = []
+    clearCache() // 清除快取
   } catch (err) {
     alert('削除中にエラーが発生しました: ' + err.message)
     console.error('Error deleting products:', err)
@@ -355,8 +407,6 @@ onMounted(() => {
 })
 
 const handleUpdated = (payload) => {
-
-
   const idx = products.value.findIndex(p => {
     return p.id === payload.id
   })
@@ -365,6 +415,9 @@ const handleUpdated = (payload) => {
   if (payload.seriesName !== undefined) target.seriesName = payload.seriesName
   if (payload.purposeCategoryId !== undefined) target.purposeCategoryId = payload.purposeCategoryId
   if (payload.purposeCategory !== undefined) target.purposeCategory = payload.purposeCategory
+  
+  // 清除快取，因為資料已更新
+  clearCache()
 }
 </script>
 
