@@ -526,8 +526,8 @@ const saveAll = async () => {
 
 .card-purpose-badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 6px;
+  left: 6px;
   z-index: 12;
 }
 
