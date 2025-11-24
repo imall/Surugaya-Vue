@@ -78,7 +78,7 @@
 
     <div v-else-if="sortedProducts.length !== 0" class="product-grid">
       <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
-        :is-selected="selectedProducts.includes(product.url)" :show-purpose="selectedTab === null"
+        :is-selected="selectedProducts.includes(product.url)" 
         @toggle-select="toggleProductSelection" @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 

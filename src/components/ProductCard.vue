@@ -2,9 +2,15 @@
   <div class="product-card" :class="{ selected: isSelected }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
-    <!-- purpose badge (top-left) -->
-    <div v-if="showPurpose" class="card-purpose-badge">
-      <span class="purpose-badge">{{ getCategoryText(product.purposeCategoryId) }}</span>
+    <!-- purpose category dropdown (top-left) -->
+    <div class="card-purpose-badge">
+      <select v-model="quickCategoryId" @change="quickUpdateCategory" class="quick-category-select"
+        :disabled="quickSaving" :id="`category-select-${product.id}`" :name="`category-${product.id}`"
+        aria-label="選擇商品分類">
+        <option v-for="id in getCategoryIds()" :key="id" :value="id">
+          {{ getCategoryText(id) }}
+        </option>
+      </select>
     </div>
 
     <div class="product-content">
@@ -88,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { getCategoryText, isValidCategoryId, getCategoryIds } from '@/utils/categoryMap'
 
 const props = defineProps({
@@ -127,6 +133,16 @@ const showEditModal = ref(false)
 const localSeriesName = ref(props.product.seriesName || '')
 const localPurposeCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const saving = ref(false)
+
+// 快速分類選單
+const quickCategoryId = ref(props.product.purposeCategoryId ?? 0)
+const quickSaving = ref(false)
+
+// 監聽 product.purposeCategoryId 變化，同步更新 quickCategoryId
+watch(() => props.product.purposeCategoryId, (newId) => {
+  quickCategoryId.value = newId ?? 0
+})
+
 const API_Category = 'https://surugaya.onrender.com/api/SurugayaCategory'
 
 const openEditModal = () => {
@@ -137,6 +153,49 @@ const openEditModal = () => {
 
 const closeModal = () => {
   showEditModal.value = false
+}
+
+// 快速更新分類
+const quickUpdateCategory = async () => {
+  const newCategoryId = quickCategoryId.value
+
+  if (!isValidCategoryId(newCategoryId)) {
+    alert('用途選擇無效')
+    quickCategoryId.value = props.product.purposeCategoryId ?? 0
+    return
+  }
+
+  if (props.product.purposeCategoryId === newCategoryId) {
+    return
+  }
+
+  quickSaving.value = true
+  try {
+    const qs = `?purposeCategory=${newCategoryId}`
+    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, {
+      method: 'PATCH',
+      headers: { 'Accept': 'application/json' }
+    })
+
+    if (!res.ok) {
+      const txt = await res.text()
+      throw new Error(txt || '用途の更新に失敗しました')
+    }
+
+    const updatedData = await res.json()
+    emit('updated', {
+      id: props.product.id,
+      purposeCategoryId: updatedData.purposeCategoryId,
+      purposeCategory: updatedData.purposeCategory
+    })
+  } catch (err) {
+    alert('更新用途時發生錯誤: ' + parseErrorMessage(err))
+    console.error(err)
+    // 恢復原值
+    quickCategoryId.value = props.product.purposeCategoryId ?? 0
+  } finally {
+    quickSaving.value = false
+  }
 }
 
 const parseErrorMessage = (err) => {
@@ -177,7 +236,7 @@ const savePurposeOnly = async () => {
       return
     }
 
-    const qs = `?purposeCategory=${newPurposeCategoryId}`;
+    const qs = `?purposeCategoryId=${newPurposeCategoryId}`;
 
     const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, {
       method: 'PATCH',
@@ -470,6 +529,51 @@ const saveAll = async () => {
   top: 8px;
   left: 8px;
   z-index: 12;
+}
+
+.quick-category-select {
+  background: rgba(230, 247, 255, 0.95);
+  color: #07516a;
+  border: 1px solid #cfeffb;
+  padding: 4px 8px;
+  padding-right: 8px;
+  /* 確保右側不留空間給箭頭 */
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  /* 隱藏下拉箭頭 */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* 確保文字完整顯示 */
+  min-width: fit-content;
+  white-space: nowrap;
+  /* 移除 IE 的箭頭 */
+  background-image: none;
+}
+
+/* 移除 IE 10+ 的箭頭 */
+.quick-category-select::-ms-expand {
+  display: none;
+}
+
+.quick-category-select:hover:not(:disabled) {
+  background: rgba(230, 247, 255, 1);
+  border-color: #b8e5f7;
+  box-shadow: 0 2px 8px rgba(7, 81, 106, 0.15);
+}
+
+.quick-category-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quick-category-select:focus {
+  border-color: #7fb3d5;
+  box-shadow: 0 0 0 2px rgba(127, 179, 213, 0.2);
 }
 
 .purpose-badge {
