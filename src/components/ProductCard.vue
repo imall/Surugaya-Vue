@@ -553,6 +553,11 @@ const saveAll = async () => {
   white-space: nowrap;
   /* 移除 IE 的箭頭 */
   background-image: none;
+  text-align: center;
+}
+
+.quick-category-select option {
+  text-align: left;
 }
 
 /* 移除 IE 10+ 的箭頭 */
