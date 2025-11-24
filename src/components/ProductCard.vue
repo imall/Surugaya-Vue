@@ -536,8 +536,6 @@ const saveAll = async () => {
   color: #07516a;
   border: 1px solid #cfeffb;
   padding: 4px 8px;
-  padding-right: 8px;
-  /* 確保右側不留空間給箭頭 */
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
@@ -553,12 +551,11 @@ const saveAll = async () => {
   white-space: nowrap;
   /* 移除 IE 的箭頭 */
   background-image: none;
-  text-align: center;
+  /* 文字置中 */
+  text-align-last: center;
 }
 
-.quick-category-select option {
-  text-align: left;
-}
+
 
 /* 移除 IE 10+ 的箭頭 */
 .quick-category-select::-ms-expand {
