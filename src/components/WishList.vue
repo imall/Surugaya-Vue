@@ -215,7 +215,7 @@ const filteredProducts = computed(() => {
 
   return arr.filter(p => {
     const isSale = p.salePrice && Number(p.salePrice) > 0
-    const isOutOfStock = !(p.currentPrice && Number(p.currentPrice) > 0)
+    const isOutOfStock = p.status === "申し訳ございません。品切れ中です。"
     return (filterOnSale.value && isSale) || (filterOutOfStock.value && isOutOfStock)
   })
 })
