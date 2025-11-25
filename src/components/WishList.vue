@@ -60,7 +60,7 @@ const API_URL = 'https://surugaya.onrender.com/api/SurugayaUrls'
 
 // 快取相關常數和函數
 const CACHE_KEY = 'surugaya_products_cache'
-const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6 小時（毫秒）
+const CACHE_DURATION = 15 * 60 * 1000 // 15 分鐘（毫秒）
 
 const clearCache = () => {
   localStorage.removeItem(CACHE_KEY)
