@@ -1,8 +1,10 @@
-
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ProductCard from './ProductCard.vue'
+import RefreshButton from './common/RefreshButton.vue'
+import AddUrlButton from './common/AddUrlButton.vue'
+import BaseButton from './common/BaseButton.vue'
 import { getCategoryIds, getCategoryRoute, getCategoryIdFromRoute, CATEGORY_ROUTES } from '@/utils/categoryMap'
 
 const router = useRouter()
@@ -24,14 +26,14 @@ const selectedTab = computed(() => {
 // 解析當前路由
 const parseRoute = (path) => {
   const segments = path.split('/').filter(s => s)
-  
+
   if (segments.length === 0) {
     return { category: null, search: '' }
   }
-  
+
   const firstSegment = segments[0]
   const lastSegment = segments[segments.length - 1]
-  
+
   // 判斷結構
   if (segments.length === 1) {
     // 只有一段
@@ -42,8 +44,8 @@ const parseRoute = (path) => {
     }
   } else {
     // 兩段: /category/search
-    const category = CATEGORY_ROUTES.includes(firstSegment) 
-      ? getCategoryIdFromRoute(firstSegment) 
+    const category = CATEGORY_ROUTES.includes(firstSegment)
+      ? getCategoryIdFromRoute(firstSegment)
       : null
     const search = decodeURIComponent(lastSegment)
     return { category, search }
@@ -64,17 +66,17 @@ watch(() => currentRoute.value.search, (newSearch) => {
 // 統一的導航函數
 const navigateTo = ({ category = selectedTab.value, search = seriesSearchKeyword.value } = {}) => {
   const parts = []
-  
+
   if (category !== null) {
     parts.push(getCategoryRoute(category))
   }
-  
+
   if (search) {
     parts.push(encodeURIComponent(search))
   }
-  
+
   const targetPath = '/' + (parts.length ? parts.join('/') : '')
-  
+
   if (route.path !== targetPath) {
     router.push(targetPath)
   }
@@ -109,8 +111,7 @@ const tabCounts = computed(() => {
 })
 
 // add URL panel
-const showAdd = ref(false)
-const newUrl = ref('')
+const addUrlRef = ref(null)
 const adding = ref(false)
 const addError = ref('')
 const API_URL = 'https://surugaya.onrender.com/api/SurugayaUrls'
@@ -124,12 +125,17 @@ const clearCache = () => {
   console.log('快取已清除')
 }
 
-const addUrl = async () => {
-  if (!newUrl.value || adding.value) return
+const handleRefresh = async () => {
+  clearCache()
+  await fetchProducts()
+}
+
+const handleAddUrl = async (url) => {
   addError.value = ''
+
   // simple validation
   try {
-    new URL(newUrl.value)
+    new URL(url)
   } catch (e) {
     addError.value = '無効な URL です'
     return
@@ -143,7 +149,7 @@ const addUrl = async () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ productUrl: newUrl.value })
+      body: JSON.stringify({ productUrl: url })
     })
 
     if (!response.ok) {
@@ -152,8 +158,7 @@ const addUrl = async () => {
     }
 
     // 成功: 清空輸入並重新載入列表
-    newUrl.value = ''
-    showAdd.value = false
+    addUrlRef.value?.clear()
     clearCache() // 清除快取
     await fetchProducts()
   } catch (err) {
@@ -235,14 +240,14 @@ const sortedProducts = computed(() => {
 const fetchProducts = async () => {
   try {
     loading.value = true
-    
+
     // 檢查 localStorage 快取
     const cachedData = localStorage.getItem(CACHE_KEY)
     if (cachedData) {
       try {
         const { data, timestamp } = JSON.parse(cachedData)
         const now = Date.now()
-        
+
         // 檢查快取是否在有效期內
         if (now - timestamp < CACHE_DURATION) {
           console.log('使用快取資料')
@@ -256,7 +261,7 @@ const fetchProducts = async () => {
         console.error('快取資料解析失敗:', e)
       }
     }
-    
+
     // 快取不存在或已過期，從 API 取得資料
     const response = await fetch('https://surugaya.onrender.com/api/SurugayaDetails')
 
@@ -265,7 +270,7 @@ const fetchProducts = async () => {
     }
 
     const data = await response.json()
-    
+
     // 儲存到 localStorage
     try {
       const cacheObject = {
@@ -281,7 +286,7 @@ const fetchProducts = async () => {
         localStorage.removeItem(CACHE_KEY)
       }
     }
-    
+
     // 直接使用 API 回傳的資料（包含 id）
     products.value = data
   } catch (err) {
@@ -365,7 +370,7 @@ const handleUpdated = (payload) => {
   if (payload.seriesName !== undefined) target.seriesName = payload.seriesName
   if (payload.purposeCategoryId !== undefined) target.purposeCategoryId = payload.purposeCategoryId
   if (payload.purposeCategory !== undefined) target.purposeCategory = payload.purposeCategory
-  
+
   // 清除快取，因為資料已更新
   clearCache()
 }
@@ -373,18 +378,14 @@ const handleUpdated = (payload) => {
 
 <template>
   <div class="wishlist-container">
-    <div class="add-wrapper">
-      <button class="add-button" @click="showAdd = !showAdd" :aria-expanded="showAdd">+</button>
-      <div v-if="showAdd" class="add-box">
-        <input v-model="newUrl" @keyup.enter="addUrl" @keyup.esc="showAdd = false" type="text"
-          placeholder="貼上商品網址，Enter送出" class="add-input" />
-        <button class="add-submit" @click="addUrl" :disabled="adding">送出</button>
-        <div class="add-msg" v-if="addError">{{ addError }}</div>
-      </div>
-    </div>
+    <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
+
     <div class="header">
       <div class="header-row">
-        <h1>駿河屋 願望清單</h1>
+        <div class="title-row">
+          <h1>駿河屋 願望清單</h1>
+          <RefreshButton :loading="loading" @refresh="handleRefresh" />
+        </div>
 
         <div class="tabs">
           <button :class="['tab', { active: selectedTab === null }]" @click="changeTab(null)">全部 ({{
@@ -433,9 +434,10 @@ const handleUpdated = (payload) => {
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
             <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
             }}個が選択されています</span>
-            <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
+            <BaseButton variant="danger" class="btn-delete-selected" @click="deleteSelected"
+              :disabled="selectedProducts.length === 0">
               選択した商品を削除
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -492,6 +494,18 @@ const handleUpdated = (payload) => {
   font-size: 24px;
   color: #333;
   margin: 10px 0;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.title-row h1 {
+  margin: 10px 0;
+  flex: 1;
 }
 
 .controls {
@@ -555,124 +569,9 @@ const handleUpdated = (payload) => {
 }
 
 .btn-delete-selected {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
   padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
   font-size: 13px;
-  transition: background-color 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-delete-selected:hover {
-  background-color: #b71c1c;
-}
-
-.add-wrapper {
-  position: absolute;
-  top: 130px;
-  right: 12px;
-  z-index: 80;
-}
-
-.add-button {
-  width: 48px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid #e6e6e6;
-  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
-  color: #333;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 18px rgba(30, 30, 30, 0.06);
-  transition: transform .12s ease, box-shadow .12s ease, background .12s, opacity .12s;
-}
-
-.add-button:hover {
-  transform: translateY(-2px);
-  background: #f4f6f8;
-  box-shadow: 0 10px 24px rgba(30, 30, 30, 0.08);
-}
-
-.add-button:focus {
-  outline: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
-}
-
-.add-box {
-  position: absolute;
-  top: 54px;
-  right: 0;
-  margin-top: 0;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 320px;
-  max-width: 520px;
-  z-index: 90;
-  transform-origin: top right;
-  animation: pop .12s ease;
-}
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: scale(.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.add-input {
-  flex: 1;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
   border-radius: 4px;
-}
-
-.add-submit {
-  background: linear-gradient(180deg, #5a5a5a 0%, #3b3b3b 100%);
-  color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
-  transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
-}
-
-.add-submit:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.add-submit:hover:enabled {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
-}
-
-.add-msg {
-  color: #d32f2f;
-  font-size: 12px;
-  margin-left: 8px;
 }
 
 .loading,
@@ -720,10 +619,6 @@ const handleUpdated = (payload) => {
 }
 
 @media (max-width: 768px) {
-  .add-wrapper {
-    top: 145px;
-  }
-
   .header-row {
     flex-direction: column;
     align-items: flex-start;

@@ -1,0 +1,95 @@
+<template>
+  <button :class="['base-button', variant]" :disabled="disabled" :title="title" @click="handleClick">
+    <slot></slot>
+  </button>
+</template>
+
+<script setup>
+defineProps({
+  variant: {
+    type: String,
+    default: 'default', // default, primary, danger
+    validator: (value) => ['default', 'primary', 'danger'].includes(value)
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  title: {
+    type: String,
+    default: ''
+  }
+})
+
+const emit = defineEmits(['click'])
+
+const handleClick = () => {
+  emit('click')
+}
+</script>
+
+<style scoped>
+.base-button {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* 預設樣式 */
+.base-button.default {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  color: #666;
+}
+
+.base-button.default:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
+  border-color: #ccc;
+  color: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.base-button.default:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 主要按鈕樣式 */
+.base-button.primary {
+  background: linear-gradient(180deg, #5a5a5a 0%, #3b3b3b 100%);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.base-button.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+}
+
+/* 危險按鈕樣式 */
+.base-button.danger {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+}
+
+.base-button.danger:hover:not(:disabled) {
+  background-color: #b71c1c;
+}
+
+.base-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+</style>
