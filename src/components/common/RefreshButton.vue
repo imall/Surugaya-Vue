@@ -25,12 +25,17 @@ const handleClick = () => {
 <style scoped>
 .refresh-button {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  inset: 0 0 0 auto;
+  margin: auto;
   width: 36px;
   height: 36px;
   font-size: 20px;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+}
+
+.refresh-button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 2px 8px rgba(30, 30, 30, 0.1);
 }
 
 .refresh-icon {

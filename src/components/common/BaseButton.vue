@@ -53,14 +53,10 @@ const handleClick = () => {
   background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
   border-color: #ccc;
   color: #333;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.base-button.default:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
+
 
 /* 主要按鈕樣式 */
 .base-button.primary {
@@ -71,8 +67,7 @@ const handleClick = () => {
 }
 
 .base-button.primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* 危險按鈕樣式 */

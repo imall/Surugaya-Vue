@@ -50,8 +50,8 @@ defineExpose({
 <style scoped>
 .add-wrapper {
   position: absolute;
-  bottom: 50%;
-  transform: translateY(50%);
+  inset: 0 0 0 auto;
+  margin: auto;
   right: 0px;
   z-index: 80;
 }
@@ -64,16 +64,21 @@ defineExpose({
   line-height: 1;
   border-radius: 10px;
   box-shadow: 0 6px 18px rgba(30, 30, 30, 0.06);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
 }
 
 .add-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(30, 30, 30, 0.08);
+  box-shadow: 0 8px 20px rgba(30, 30, 30, 0.12);
+}
+
+.add-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 2px 8px rgba(30, 30, 30, 0.1);
 }
 
 .add-box {
   position: absolute;
-  top: 54px;
+  top: 50px;
   right: 0;
   margin-top: 0;
   background: #fff;
@@ -124,7 +129,6 @@ defineExpose({
 @media (max-width: 768px) {
   .add-wrapper {
     top: 10px;
-    transform: translateY(0);
   }
 }
 </style>
