@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { getCategoryText, isValidCategoryId, getCategoryIds } from '@/utils/categoryMap'
 
 const props = defineProps({
@@ -18,6 +18,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['toggle-select', 'delete', 'updated'])
+
+// 偵測是否為實體店家商品
+const isPhysicalStore = computed(() => {
+  return props.product.url && props.product.url.includes('tenpo_cd')
+})
 
 const handleToggleSelect = () => {
   // use full URL (lowercase `url`) as the key for selection to avoid ambiguity across marketplaces
@@ -283,6 +288,8 @@ const saveAll = async () => {
       <div class="product-image" @click="handleToggleSelect">
         <img :src="product.imageUrl" :alt="product.title" />
         <div v-if="isSelected" class="selected-overlay"></div>
+        <!-- 實體店家標記 -->
+        <div v-if="isPhysicalStore" class="store-badge" title="実店舗">🏪</div>
       </div>
 
       <div class="product-info">
@@ -449,6 +456,20 @@ const saveAll = async () => {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+}
+
+/* 實體店家標記 */
+.store-badge {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
 }
 
 .product-info {
