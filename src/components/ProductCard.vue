@@ -1,98 +1,3 @@
-<template>
-  <div class="product-card" :class="{ selected: isSelected }">
-    <button @click="handleDelete" class="btn-delete" title="削除">×</button>
-
-    <!-- purpose category dropdown (top-left) -->
-    <div class="card-purpose-badge">
-      <select v-model="quickCategoryId" @change="quickUpdateCategory" class="quick-category-select"
-        :disabled="quickSaving" :id="`category-select-${product.id}`" :name="`category-${product.id}`"
-        aria-label="選擇商品分類">
-        <option v-for="id in getCategoryIds()" :key="id" :value="id">
-          {{ getCategoryText(id) }}
-        </option>
-      </select>
-    </div>
-
-    <div class="product-content">
-      <div class="product-image" @click="handleToggleSelect">
-        <img :src="product.imageUrl" :alt="product.title" />
-        <div v-if="isSelected" class="selected-overlay"></div>
-      </div>
-
-      <div class="product-info">
-        <a :href="product.url" target="_blank" class="product-title">
-          {{ product.title }}
-        </a>
-        <button class="ellipsis-button" @click.stop="openEditModal" aria-label="編輯項目">⋯</button>
-
-        <div class="series-text">{{ product.seriesName }}</div>
-
-
-        <div class="price-section">
-          <template v-if="product.salePrice">
-            <div class="price-row">
-              <span class="label ">販売価格</span>
-              <span class="original-price">¥{{ product.currentPrice.toLocaleString() }}</span>
-            </div>
-            <div class="price-row">
-              <span class="label sale-label">セール価格</span>
-              <span class="sale-price">¥{{ product.salePrice.toLocaleString() }}(税込)</span>
-            </div>
-          </template>
-          <template v-else-if="product.currentPrice > 0">
-            <div class="price-row">
-              <span class="label">販売価格</span>
-              <span class="current-price">¥{{ product.currentPrice.toLocaleString() }}(税込)</span>
-            </div>
-          </template>
-          <template v-else>
-            <div class="price-row">
-              <span class="label">販売価格</span>
-              <span class="out-of-stock">品切れ中</span>
-            </div>
-          </template>
-        </div>
-
-        <div class="date-info">
-          リストに追加された日: {{ formatDate(product.lastUpdated) }}
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Modal -->
-    <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-box" role="dialog" aria-modal="true">
-        <h3>編輯項目</h3>
-        <div class="modal-row field-with-action">
-          <label class="small-label">用途</label>
-          <div class="field-action-row">
-            <select v-model="localPurposeCategoryId" class="purpose-select">
-              <option v-for="id in getCategoryIds()" :key="id" :value="id">
-                {{ getCategoryText(id) }}
-              </option>
-            </select>
-            <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
-          </div>
-        </div>
-
-        <div class="modal-row field-with-action">
-          <label class="small-label">作品名</label>
-          <div class="field-action-row">
-            <input v-model="localSeriesName" class="series-input" />
-            <button class="btn-inline btn-series" @click="saveSeriesOnly" :disabled="saving">儲存</button>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-save-all" @click="saveAll" :disabled="saving">全部儲存</button>
-          <button class="btn-cancel" @click="closeModal" :disabled="saving">取消</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, watch } from 'vue'
 import { getCategoryText, isValidCategoryId, getCategoryIds } from '@/utils/categoryMap'
@@ -343,6 +248,101 @@ const saveAll = async () => {
 
 
 </script>
+
+<template>
+  <div class="product-card" :class="{ selected: isSelected }">
+    <button @click="handleDelete" class="btn-delete" title="削除">×</button>
+
+    <!-- purpose category dropdown (top-left) -->
+    <div class="card-purpose-badge">
+      <select v-model="quickCategoryId" @change="quickUpdateCategory" class="quick-category-select"
+        :disabled="quickSaving" :id="`category-select-${product.id}`" :name="`category-${product.id}`"
+        aria-label="選擇商品分類">
+        <option v-for="id in getCategoryIds()" :key="id" :value="id">
+          {{ getCategoryText(id) }}
+        </option>
+      </select>
+    </div>
+
+    <div class="product-content">
+      <div class="product-image" @click="handleToggleSelect">
+        <img :src="product.imageUrl" :alt="product.title" />
+        <div v-if="isSelected" class="selected-overlay"></div>
+      </div>
+
+      <div class="product-info">
+        <a :href="product.url" target="_blank" class="product-title">
+          {{ product.title }}
+        </a>
+        <button class="ellipsis-button" @click.stop="openEditModal" aria-label="編輯項目">⋯</button>
+
+        <div class="series-text">{{ product.seriesName }}</div>
+
+
+        <div class="price-section">
+          <template v-if="product.salePrice">
+            <div class="price-row">
+              <span class="label ">販売価格</span>
+              <span class="original-price">¥{{ product.currentPrice.toLocaleString() }}</span>
+            </div>
+            <div class="price-row">
+              <span class="label sale-label">セール価格</span>
+              <span class="sale-price">¥{{ product.salePrice.toLocaleString() }}(税込)</span>
+            </div>
+          </template>
+          <template v-else-if="product.currentPrice > 0">
+            <div class="price-row">
+              <span class="label">販売価格</span>
+              <span class="current-price">¥{{ product.currentPrice.toLocaleString() }}(税込)</span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="price-row">
+              <span class="label">販売価格</span>
+              <span class="out-of-stock">品切れ中</span>
+            </div>
+          </template>
+        </div>
+
+        <div class="date-info">
+          リストに追加された日: {{ formatDate(product.lastUpdated) }}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <h3>編輯項目</h3>
+        <div class="modal-row field-with-action">
+          <label class="small-label">用途</label>
+          <div class="field-action-row">
+            <select v-model="localPurposeCategoryId" class="purpose-select">
+              <option v-for="id in getCategoryIds()" :key="id" :value="id">
+                {{ getCategoryText(id) }}
+              </option>
+            </select>
+            <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
+          </div>
+        </div>
+
+        <div class="modal-row field-with-action">
+          <label class="small-label">作品名</label>
+          <div class="field-action-row">
+            <input v-model="localSeriesName" class="series-input" />
+            <button class="btn-inline btn-series" @click="saveSeriesOnly" :disabled="saving">儲存</button>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-save-all" @click="saveAll" :disabled="saving">全部儲存</button>
+          <button class="btn-cancel" @click="closeModal" :disabled="saving">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .product-card {

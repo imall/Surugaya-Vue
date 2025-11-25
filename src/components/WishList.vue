@@ -1,92 +1,3 @@
-<template>
-  <div class="wishlist-container">
-    <div class="add-wrapper">
-      <button class="add-button" @click="showAdd = !showAdd" :aria-expanded="showAdd">+</button>
-      <div v-if="showAdd" class="add-box">
-        <input v-model="newUrl" @keyup.enter="addUrl" @keyup.esc="showAdd = false" type="text"
-          placeholder="貼上商品網址，Enter送出" class="add-input" />
-        <button class="add-submit" @click="addUrl" :disabled="adding">送出</button>
-        <div class="add-msg" v-if="addError">{{ addError }}</div>
-      </div>
-    </div>
-    <div class="header">
-      <div class="header-row">
-        <h1>駿河屋 願望清單</h1>
-
-        <div class="tabs">
-          <button :class="['tab', { active: selectedTab === null }]" @click="selectedTab = null">全部 ({{
-            tabCounts.all }})</button>
-          <button :class="['tab', { active: selectedTab === 0 }]" @click="selectedTab = 0">未分類 ({{
-            tabCounts[0] }})</button>
-          <button :class="['tab', { active: selectedTab === 1 }]" @click="selectedTab = 1">購買 ({{
-            tabCounts[1] }})</button>
-          <button :class="['tab', { active: selectedTab === 2 }]" @click="selectedTab = 2">考慮 ({{
-            tabCounts[2] }})</button>
-          <button :class="['tab', { active: selectedTab === 3 }]" @click="selectedTab = 3">購物車 ({{
-            tabCounts[3] }})</button>
-        </div>
-
-        <div class="header-actions">
-          <div class="controls-wrap">
-            <div class="controls">
-              <label for="sort-select" class="label-name">並び替え:</label>
-              <select id="sort-select" v-model="sortOption">
-                <option value="default">デフォルト</option>
-                <option value="price-asc">価格: 安い順</option>
-                <option value="price-desc">価格: 高い順</option>
-                <option value="name-asc">名前: A→Z</option>
-                <option value="name-desc">名前: Z→A</option>
-              </select>
-            </div>
-            <div class="controls">
-              <label for="series-search" class="label-name">作品で絞る:</label>
-              <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
-                class="series-search-input" />
-            </div>
-          </div>
-          <div class="controls-and-filters">
-            <div class="filters">
-              <label class="filter-label">
-                <input type="checkbox" v-model="filterOnSale" />
-                <span>特價中の商品のみ</span>
-              </label>
-              <label class="filter-label">
-                <input type="checkbox" v-model="filterOutOfStock" />
-                <span>無庫存の商品のみ</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
-            <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
-            }}個が選択されています</span>
-            <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
-              選択した商品を削除
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="loading" class="loading">
-      読み込み中...
-    </div>
-
-    <div v-else-if="error" class="error">
-      エラーが発生しました: {{ error }}
-    </div>
-
-    <div v-else-if="sortedProducts.length !== 0" class="product-grid">
-      <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
-        :is-selected="selectedProducts.includes(product.url)" @toggle-select="toggleProductSelection"
-        @delete="deleteProduct" @updated="handleUpdated" />
-    </div>
-
-    <div v-else class="loading">
-      商品が見つかりませんでした。
-    </div>
-  </div>
-</template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
@@ -420,6 +331,97 @@ const handleUpdated = (payload) => {
   clearCache()
 }
 </script>
+
+<template>
+  <div class="wishlist-container">
+    <div class="add-wrapper">
+      <button class="add-button" @click="showAdd = !showAdd" :aria-expanded="showAdd">+</button>
+      <div v-if="showAdd" class="add-box">
+        <input v-model="newUrl" @keyup.enter="addUrl" @keyup.esc="showAdd = false" type="text"
+          placeholder="貼上商品網址，Enter送出" class="add-input" />
+        <button class="add-submit" @click="addUrl" :disabled="adding">送出</button>
+        <div class="add-msg" v-if="addError">{{ addError }}</div>
+      </div>
+    </div>
+    <div class="header">
+      <div class="header-row">
+        <h1>駿河屋 願望清單</h1>
+
+        <div class="tabs">
+          <button :class="['tab', { active: selectedTab === null }]" @click="selectedTab = null">全部 ({{
+            tabCounts.all }})</button>
+          <button :class="['tab', { active: selectedTab === 0 }]" @click="selectedTab = 0">未分類 ({{
+            tabCounts[0] }})</button>
+          <button :class="['tab', { active: selectedTab === 1 }]" @click="selectedTab = 1">購買 ({{
+            tabCounts[1] }})</button>
+          <button :class="['tab', { active: selectedTab === 2 }]" @click="selectedTab = 2">考慮 ({{
+            tabCounts[2] }})</button>
+          <button :class="['tab', { active: selectedTab === 3 }]" @click="selectedTab = 3">購物車 ({{
+            tabCounts[3] }})</button>
+        </div>
+
+        <div class="header-actions">
+          <div class="controls-wrap">
+            <div class="controls">
+              <label for="sort-select" class="label-name">並び替え:</label>
+              <select id="sort-select" v-model="sortOption">
+                <option value="default">デフォルト</option>
+                <option value="price-asc">価格: 安い順</option>
+                <option value="price-desc">価格: 高い順</option>
+                <option value="name-asc">名前: A→Z</option>
+                <option value="name-desc">名前: Z→A</option>
+              </select>
+            </div>
+            <div class="controls">
+              <label for="series-search" class="label-name">作品で絞る:</label>
+              <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
+                class="series-search-input" />
+            </div>
+          </div>
+          <div class="controls-and-filters">
+            <div class="filters">
+              <label class="filter-label">
+                <input type="checkbox" v-model="filterOnSale" />
+                <span>特價中の商品のみ</span>
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" v-model="filterOutOfStock" />
+                <span>無庫存の商品のみ</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
+            <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
+            }}個が選択されています</span>
+            <button @click="deleteSelected" class="btn-delete-selected" :disabled="selectedProducts.length === 0">
+              選択した商品を削除
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="loading" class="loading">
+      読み込み中...
+    </div>
+
+    <div v-else-if="error" class="error">
+      エラーが発生しました: {{ error }}
+    </div>
+
+    <div v-else-if="sortedProducts.length !== 0" class="product-grid">
+      <ProductCard v-for="product in sortedProducts" :key="product.url" :product="product"
+        :is-selected="selectedProducts.includes(product.url)" @toggle-select="toggleProductSelection"
+        @delete="deleteProduct" @updated="handleUpdated" />
+    </div>
+
+    <div v-else class="loading">
+      商品が見つかりませんでした。
+    </div>
+  </div>
+</template>
+
 
 <style scoped>
 .wishlist-container {
