@@ -234,7 +234,7 @@ const saveAll = async () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: `${props.product.url}`
+        body: JSON.stringify(props.product.url)
       })
 
     if (!res.ok) {
