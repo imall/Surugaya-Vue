@@ -18,6 +18,7 @@ const selectedProducts = ref([])
 // filters
 const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
+const filterHidePhysicalStore = ref(false)
 
 const selectedTab = computed(() => {
   return getCategoryIdFromRoute(route.params.category)
@@ -203,6 +204,11 @@ const filteredProducts = computed(() => {
       const seriesName = (p.seriesName || '').toString().toLowerCase()
       return seriesName.includes(keyword)
     })
+  }
+
+  // 去除實體店家篩選
+  if (filterHidePhysicalStore.value) {
+    arr = arr.filter(p => !p.url || !p.url.includes('tenpo_cd'))
   }
 
   if (!filterOnSale.value && !filterOutOfStock.value) return arr
@@ -422,11 +428,15 @@ const handleUpdated = (payload) => {
             <div class="filters">
               <label class="filter-label">
                 <input type="checkbox" v-model="filterOnSale" />
-                <span>特價中の商品のみ</span>
+                <span>特價中</span>
               </label>
               <label class="filter-label">
                 <input type="checkbox" v-model="filterOutOfStock" />
-                <span>無庫存の商品のみ</span>
+                <span>無庫存</span>
+              </label>
+              <label class="filter-label">
+                <input type="checkbox" v-model="filterHidePhysicalStore" />
+                <span>隱藏實體店</span>
               </label>
             </div>
           </div>
