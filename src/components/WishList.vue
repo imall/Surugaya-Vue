@@ -625,6 +625,15 @@ const handleUpdated = (payload) => {
     gap: 8px;
   }
 
+  .title-row h1 {
+    font-size: 20px;
+  }
+
+  /* 手機版隱藏重新整理按鈕 */
+  .title-row :deep(.refresh-button) {
+    display: none;
+  }
+
   .header-actions {
     width: 100%;
     justify-content: flex-start;
