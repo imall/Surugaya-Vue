@@ -24,6 +24,10 @@ const handleClick = () => {
 
 <style scoped>
 .refresh-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 36px;
   height: 36px;
   font-size: 20px;

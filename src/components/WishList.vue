@@ -384,8 +384,6 @@ const handleUpdated = (payload) => {
 
 <template>
   <div class="wishlist-container">
-    <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
-
     <div class="header">
       <div class="header-row">
         <div class="title-row">
@@ -440,7 +438,6 @@ const handleUpdated = (payload) => {
               </label>
             </div>
           </div>
-
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
             <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
             }}個が選択されています</span>
@@ -449,6 +446,7 @@ const handleUpdated = (payload) => {
               選択した商品を削除
             </BaseButton>
           </div>
+          <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
         </div>
       </div>
     </div>
@@ -489,7 +487,6 @@ const handleUpdated = (payload) => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
 }
 
 .header-actions {
@@ -497,6 +494,7 @@ const handleUpdated = (payload) => {
   align-items: center;
   gap: 12px;
   width: 100%;
+  position: relative;
 }
 
 .header h1 {
@@ -511,6 +509,7 @@ const handleUpdated = (payload) => {
   align-items: center;
   gap: 12px;
   width: 100%;
+  position: relative;
 }
 
 .title-row h1 {

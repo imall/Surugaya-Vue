@@ -50,8 +50,9 @@ defineExpose({
 <style scoped>
 .add-wrapper {
   position: absolute;
-  top: 130px;
-  right: 12px;
+  bottom: 50%;
+  transform: translateY(50%);
+  right: 0px;
   z-index: 80;
 }
 
@@ -122,7 +123,8 @@ defineExpose({
 
 @media (max-width: 768px) {
   .add-wrapper {
-    top: 145px;
+    top: 10px;
+    transform: translateY(0);
   }
 }
 </style>
