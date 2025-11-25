@@ -3,11 +3,12 @@ import WishList from '../components/WishList.vue'
 
 const routes = [
   {
-    path: '/:category?',
+    path: '/:category?/:search?',
     name: 'wishlist',
     component: WishList,
     props: route => ({
-      initialCategory: route.params.category || 'all'
+      initialCategory: route.params.category || 'all',
+      initialSearch: route.params.search || ''
     })
   }
 ]

@@ -14,13 +14,14 @@ export const CATEGORY_ROUTE_MAP = {
   3: 'cart'
 }
 
-// 英文路由名稱對應的分類 ID
-export const ROUTE_CATEGORY_MAP = {
-  'uncategorized': 0,
-  'purchase': 1,
-  'consider': 2,
-  'cart': 3
-}
+// 英文路由名稱對應的分類 ID（自動從 CATEGORY_ROUTE_MAP 反轉生成）
+export const ROUTE_CATEGORY_MAP = Object.entries(CATEGORY_ROUTE_MAP).reduce((acc, [id, route]) => {
+  acc[route] = parseInt(id)
+  return acc
+}, {})
+
+// 所有分類路由名稱（包含 all，自動從 CATEGORY_ROUTE_MAP 生成）
+export const CATEGORY_ROUTES = [...Object.values(CATEGORY_ROUTE_MAP)]
 
 // 根據 purposeCategoryId 取得顯示文字
 export const getCategoryText = (categoryId) => {

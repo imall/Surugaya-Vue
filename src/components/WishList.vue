@@ -3,7 +3,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ProductCard from './ProductCard.vue'
-import { getCategoryIds, getCategoryRoute, getCategoryIdFromRoute } from '@/utils/categoryMap'
+import { getCategoryIds, getCategoryRoute, getCategoryIdFromRoute, CATEGORY_ROUTES } from '@/utils/categoryMap'
 
 const router = useRouter()
 const route = useRoute()
@@ -21,17 +21,74 @@ const selectedTab = computed(() => {
   return getCategoryIdFromRoute(route.params.category)
 })
 
-const changeTab = (tabId) => {
-  if (tabId === null) {
-    router.push(`/`)
-    return
+// 解析當前路由
+const parseRoute = (path) => {
+  const segments = path.split('/').filter(s => s)
+  
+  if (segments.length === 0) {
+    return { category: null, search: '' }
   }
-  const categoryPath = getCategoryRoute(tabId)
-  router.push(`/${categoryPath}`)
+  
+  const firstSegment = segments[0]
+  const lastSegment = segments[segments.length - 1]
+  
+  // 判斷結構
+  if (segments.length === 1) {
+    // 只有一段
+    if (CATEGORY_ROUTES.includes(firstSegment)) {
+      return { category: getCategoryIdFromRoute(firstSegment), search: '' }
+    } else {
+      return { category: null, search: decodeURIComponent(firstSegment) }
+    }
+  } else {
+    // 兩段: /category/search
+    const category = CATEGORY_ROUTES.includes(firstSegment) 
+      ? getCategoryIdFromRoute(firstSegment) 
+      : null
+    const search = decodeURIComponent(lastSegment)
+    return { category, search }
+  }
 }
+
+// 從路由計算狀態 (單一真相來源)
+const currentRoute = computed(() => parseRoute(route.path))
 
 // series filter with fuzzy search
 const seriesSearchKeyword = ref('')
+
+// 只監聽路由變化來更新搜尋關鍵字
+watch(() => currentRoute.value.search, (newSearch) => {
+  seriesSearchKeyword.value = newSearch
+}, { immediate: true })
+
+// 統一的導航函數
+const navigateTo = ({ category = selectedTab.value, search = seriesSearchKeyword.value } = {}) => {
+  const parts = []
+  
+  if (category !== null) {
+    parts.push(getCategoryRoute(category))
+  }
+  
+  if (search) {
+    parts.push(encodeURIComponent(search))
+  }
+  
+  const targetPath = '/' + (parts.length ? parts.join('/') : '')
+  
+  if (route.path !== targetPath) {
+    router.push(targetPath)
+  }
+}
+
+// 改變分類
+const changeTab = (tabId) => {
+  navigateTo({ category: tabId })
+}
+
+// 監聽搜尋關鍵字變化，即時更新路由
+watch(seriesSearchKeyword, (newKeyword) => {
+  navigateTo({ search: newKeyword })
+})
 
 const tabCounts = computed(() => {
   if (!products.value) {
