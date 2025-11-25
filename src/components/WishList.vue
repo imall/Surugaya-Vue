@@ -17,36 +17,14 @@ const selectedProducts = ref([])
 const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
 
-// tabs: null (全部) | 0 (未分類) | 1 (購買) | 2 (考慮) | 3 (購物車)
-// 從路由初始化 selectedTab
-const getCategoryFromRoute = () => {
-  const category = route.params.category
-  if (!category || category === 'all') return null
+const selectedTab = computed(() => {
+  return getCategoryIdFromRoute(route.params.category)
+})
 
-  // 使用英文路由名稱轉換為 ID
-  return getCategoryIdFromRoute(category)
+const changeTab = (tabId) => {
+  const categoryPath = getCategoryRoute(tabId)
+  router.push(`/${categoryPath}`)
 }
-
-const selectedTab = ref(getCategoryFromRoute())
-
-// 監聽路由變化
-watch(() => route.params.category, () => {
-  selectedTab.value = getCategoryFromRoute()
-})
-
-// 監聽 tab 變化，更新路由
-watch(selectedTab, (newTab) => {
-  let categoryPath = 'all'
-
-  if (newTab !== null) {
-    categoryPath = getCategoryRoute(newTab)
-  }
-
-  // 只在路由不同時才導航，避免無限循環
-  if (route.params.category !== categoryPath) {
-    router.push(`/${categoryPath}`)
-  }
-})
 
 // series filter with fuzzy search
 const seriesSearchKeyword = ref('')
@@ -348,15 +326,15 @@ const handleUpdated = (payload) => {
         <h1>駿河屋 願望清單</h1>
 
         <div class="tabs">
-          <button :class="['tab', { active: selectedTab === null }]" @click="selectedTab = null">全部 ({{
+          <button :class="['tab', { active: selectedTab === null }]" @click="changeTab(null)">全部 ({{
             tabCounts.all }})</button>
-          <button :class="['tab', { active: selectedTab === 0 }]" @click="selectedTab = 0">未分類 ({{
+          <button :class="['tab', { active: selectedTab === 0 }]" @click="changeTab(0)">未分類 ({{
             tabCounts[0] }})</button>
-          <button :class="['tab', { active: selectedTab === 1 }]" @click="selectedTab = 1">購買 ({{
+          <button :class="['tab', { active: selectedTab === 1 }]" @click="changeTab(1)">購買 ({{
             tabCounts[1] }})</button>
-          <button :class="['tab', { active: selectedTab === 2 }]" @click="selectedTab = 2">考慮 ({{
+          <button :class="['tab', { active: selectedTab === 2 }]" @click="changeTab(2)">考慮 ({{
             tabCounts[2] }})</button>
-          <button :class="['tab', { active: selectedTab === 3 }]" @click="selectedTab = 3">購物車 ({{
+          <button :class="['tab', { active: selectedTab === 3 }]" @click="changeTab(3)">購物車 ({{
             tabCounts[3] }})</button>
         </div>
 
