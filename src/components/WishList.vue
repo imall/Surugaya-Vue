@@ -22,6 +22,10 @@ const selectedTab = computed(() => {
 })
 
 const changeTab = (tabId) => {
+  if (tabId === null) {
+    router.push(`/`)
+    return
+  }
   const categoryPath = getCategoryRoute(tabId)
   router.push(`/${categoryPath}`)
 }
@@ -297,7 +301,7 @@ onMounted(() => {
 
 const handleUpdated = (payload) => {
   const idx = products.value.findIndex(p => {
-    return p.id === payload.id
+    return p.url === payload.url
   })
   if (idx === -1) return
   const target = products.value[idx]

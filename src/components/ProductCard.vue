@@ -76,10 +76,13 @@ const quickUpdateCategory = async () => {
 
   quickSaving.value = true
   try {
-    const qs = `?purposeCategory=${newCategoryId}`
-    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, {
+    const res = await fetch(`${API_Category}/purposeCategory/${newCategoryId}`, {
       method: 'PATCH',
-      headers: { 'Accept': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(props.product.url)
     })
 
     if (!res.ok) {
@@ -90,6 +93,7 @@ const quickUpdateCategory = async () => {
     const updatedData = await res.json()
     emit('updated', {
       id: props.product.id,
+      url: props.product.url,
       purposeCategoryId: updatedData.purposeCategoryId,
       purposeCategory: updatedData.purposeCategory
     })
@@ -141,11 +145,14 @@ const savePurposeOnly = async () => {
       return
     }
 
-    const qs = `?purposeCategoryId=${newPurposeCategoryId}`;
 
-    const res = await fetch(`${API_Category}/${props.product.id}/purposeCategory${qs}`, {
+    const res = await fetch(`${API_Category}/purposeCategory/${newPurposeCategoryId}`, {
       method: 'PATCH',
-      headers: { 'Accept': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(props.product.url)
     })
 
     if (!res.ok) {
@@ -157,6 +164,7 @@ const savePurposeOnly = async () => {
     const updatedData = await res.json()
     emit('updated', {
       id: props.product.id,
+      url: props.product.url,
       purposeCategoryId: updatedData.purposeCategoryId,
       purposeCategory: updatedData.purposeCategory
     })
@@ -172,7 +180,6 @@ const savePurposeOnly = async () => {
 
 const saveSeriesOnly = async () => {
   const newSeries = (localSeriesName.value || '').trim()
-  const newPurposeCategoryId = localPurposeCategoryId.value
 
   if (!newSeries) {
     if (!confirm('作品名為空，確定要清空嗎？')) return
@@ -180,10 +187,13 @@ const saveSeriesOnly = async () => {
 
   saving.value = true
   try {
-    const qs = `?seriesName=${encodeURIComponent(newSeries)}`
-    const res = await fetch(`${API_Category}/${props.product.id}/seriesName${qs}`, {
+    const res = await fetch(`${API_Category}/seriesName/${encodeURIComponent(newSeries)}`, {
       method: 'PATCH',
-      headers: { 'Accept': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(props.product.url)
     })
 
     if (!res.ok) {
@@ -191,7 +201,7 @@ const saveSeriesOnly = async () => {
       throw new Error(txt || 'シリーズ名の更新に失敗しました')
     }
 
-    emit('updated', { id: props.product.id, seriesName: newSeries })
+    emit('updated', { id: props.product.id, url: props.product.url, seriesName: newSeries })
     showEditModal.value = false
   } catch (err) {
     alert('更新作品名時發生錯誤: ' + parseErrorMessage(err))
@@ -217,11 +227,15 @@ const saveAll = async () => {
 
   saving.value = true
   try {
-    const qs = `?purposeCategory=${newPurposeCategoryId}&seriesName=${encodeURIComponent(newSeries)}`
-    const res = await fetch(`${API_Category}/${props.product.id}/purposeAndSeries${qs}`, {
-      method: 'PATCH',
-      headers: { 'Accept': 'application/json' }
-    })
+    const res = await fetch(`${API_Category}/purposeAndSeries/${newPurposeCategoryId}/${encodeURIComponent(newSeries)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: `${props.product.url}`
+      })
 
     if (!res.ok) {
       const txt = await res.text()
@@ -232,6 +246,7 @@ const saveAll = async () => {
     const updatedData = await res.json()
     emit('updated', {
       id: props.product.id,
+      url: props.product.url,
       purposeCategoryId: updatedData.purposeCategoryId,
       purposeCategory: updatedData.purposeCategory,
       seriesName: newSeries
