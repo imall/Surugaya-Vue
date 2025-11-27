@@ -4,7 +4,7 @@
       +
     </BaseButton>
     <div v-if="showAdd" class="add-box">
-      <input v-model="url" @keyup.enter="handleAdd" @keyup.esc="showAdd = false" type="text"
+      <input id="url" v-model="url" @keyup.enter="handleAdd" @keyup.esc="showAdd = false" type="text"
         placeholder="貼上商品網址，Enter送出" class="add-input" />
       <BaseButton class="add-submit" variant="primary" @click="handleAdd" :disabled="adding">
         送出
@@ -78,9 +78,8 @@ defineExpose({
 
 .add-box {
   position: absolute;
-  top: 50px;
-  right: 0;
-  margin-top: 0;
+  top: 0;
+  right: 60px;
   background: #fff;
   border: 1px solid #e6e6e6;
   padding: 10px;
@@ -88,10 +87,8 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 320px;
-  max-width: 520px;
-  z-index: 90;
-  transform-origin: top right;
+  width: 360px;
+  transform-origin: bottom right;
   animation: pop .12s ease;
 }
 
@@ -112,9 +109,12 @@ defineExpose({
   padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  height: 30px;
 }
 
 .add-submit {
+  font-size: 14px;
+  height: 30px;
   padding: 8px 12px;
   font-weight: 600;
 }
@@ -129,6 +129,22 @@ defineExpose({
 @media (max-width: 768px) {
   .add-wrapper {
     top: 10px;
+  }
+
+  .add-box {
+    position: absolute;
+    top: 53px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: calc(100vw - 22px);
+    transform-origin: top right;
+    animation: pop .12s ease;
   }
 }
 </style>
