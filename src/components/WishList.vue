@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ProductCard from './ProductCard.vue'
 import RefreshButton from './common/RefreshButton.vue'
@@ -363,9 +363,7 @@ const deleteSelected = async () => {
   }
 }
 
-onMounted(() => {
-  fetchProducts()
-})
+
 
 const handleUpdated = (payload) => {
   const idx = products.value.findIndex(p => {
@@ -380,10 +378,42 @@ const handleUpdated = (payload) => {
   // 清除快取，因為資料已更新
   clearCache()
 }
+
+// 回到頂部功能
+const showScrollButton = ref(false)
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
+
+// 當滾動超過 300px 時顯示按鈕
+const handleScroll = () => {
+  showScrollButton.value = window.scrollY > 300
+}
+
+onMounted(() => {
+  fetchProducts()
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
   <div class="wishlist-container">
+    <!-- 回到頂部按鈕 (僅手機版顯示) -->
+    <button v-show="showScrollButton" class="scroll-to-top-btn" @click="scrollToTop" aria-label="回到頂部">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+
     <div class="header">
       <div class="header-row">
         <div class="title-row">
@@ -736,4 +766,36 @@ const handleUpdated = (payload) => {
     gap: 10px;
   }
 }
+
+/* 回到頂部按鈕樣式 */
+  .scroll-to-top-btn {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background-color: #a3a9b0;
+    color: white;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+.scroll-to-top-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-to-top-btn:active {
+  transform: translateY(0);
+}
+
 </style>
