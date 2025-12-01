@@ -24,6 +24,11 @@ const selectedTab = computed(() => {
   return getCategoryIdFromRoute(route.params.category)
 })
 
+// 當標籤切換時清除選擇
+watch(selectedTab, () => {
+  selectedProducts.value = []
+})
+
 // 解析當前路由
 const parseRoute = (path) => {
   const segments = path.split('/').filter(s => s)
@@ -363,7 +368,91 @@ const deleteSelected = async () => {
   }
 }
 
+const addToCart = async () => {
+  if (selectedProducts.value.length === 0) return
 
+  // 準備購物車資料
+  const cartItems = selectedProducts.value.map(url => {
+    const product = products.value.find(p => p.url === url)
+    if (!product) return null
+
+    // 取得有效價格
+    let unitPrice = '0'
+    if (product.salePrice && Number(product.salePrice) > 0) {
+      unitPrice = product.salePrice.toString().replace(/,/g, '')
+    } else if (product.currentPrice && Number(product.currentPrice) > 0) {
+      unitPrice = product.currentPrice.toString().replace(/,/g, '')
+    }
+
+    // 從 URL 提取 productId
+    const match = product.url.match(/\/detail\/(\d+)/)
+    const productId = match ? match[1] : ''
+
+    return {
+      url: product.url,
+      productId: productId,
+      title: product.title || '',
+      unitPrice: unitPrice
+    }
+  }).filter(item => item !== null)
+
+  if (cartItems.length === 0) {
+    alert('カートに追加できる商品がありません')
+    return
+  }
+
+  try {
+    const response = await fetch('https://surugaya.onrender.com/api/LetaoCart/add', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(cartItems)
+    })
+
+    let result
+    try {
+      result = await response.json()
+    } catch (e) {
+      // 如果無法解析 JSON,使用文字回應
+      const text = await response.text()
+      throw new Error(text || 'カートへの追加に失敗しました')
+    }
+
+    if (!response.ok || !result.allSuccess) {
+      // 處理部分失敗或全部失敗的情況
+      const failedItems = result.results?.filter(r => !r.success) || []
+
+      if (failedItems.length > 0) {
+        let errorMsg = `カートへの追加結果:\n成功: ${result.successCount || 0}個\n失敗: ${result.failedCount || 0}個\n\n`
+
+        // 列出失敗的商品和原因
+        errorMsg += '失敗した商品:\n'
+        failedItems.forEach((item, index) => {
+          errorMsg += `${index + 1}. ${item.title?.substring(0, 50) || 'Unknown'}...\n`
+          errorMsg += `   理由: ${item.message || '不明なエラー'}\n\n`
+        })
+
+        alert(errorMsg)
+      } else {
+        throw new Error(result.message || 'カートへの追加に失敗しました')
+      }
+
+      // 如果有部分成功,仍然清除選擇
+      if (result.successCount > 0) {
+        selectedProducts.value = []
+      }
+    } else {
+      // 全部成功
+      alert(`${result.successCount || cartItems.length}個の商品をカートに追加しました`)
+      selectedProducts.value = []
+    }
+  } catch (err) {
+    alert('カートへの追加中にエラーが発生しました: ' + err.message)
+    console.error('Error adding to cart:', err)
+  }
+}
 
 const handleUpdated = (payload) => {
   const idx = products.value.findIndex(p => {
@@ -471,7 +560,13 @@ onUnmounted(() => {
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
             <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
             }}個が選択されています</span>
-            <BaseButton variant="danger" class="btn-delete-selected" @click="deleteSelected"
+            <!-- 購物車標籤時顯示加入購物車按鈕 -->
+            <BaseButton v-if="selectedTab === 3" variant="primary" class="btn-add-to-cart" @click="addToCart"
+              :disabled="selectedProducts.length === 0">
+              カートに入れる
+            </BaseButton>
+            <!-- 其他標籤時顯示刪除按鈕 -->
+            <BaseButton v-else variant="danger" class="btn-delete-selected" @click="deleteSelected"
               :disabled="selectedProducts.length === 0">
               選択した商品を削除
             </BaseButton>
@@ -609,8 +704,22 @@ onUnmounted(() => {
 
 .btn-delete-selected {
   padding: 8px 16px;
-  font-size: 13px;
-  border-radius: 4px;
+  font-size: 14px;
+}
+
+.btn-add-to-cart {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: linear-gradient(180deg, #F6A623 0%, #E89619 100%);
+  color: #FFFFFF;
+  border: 1px solid #E89619;
+  box-shadow: 0 2px 8px rgba(246, 166, 35, 0.25);
+}
+
+.btn-add-to-cart:hover:not(:disabled) {
+  background: linear-gradient(180deg, #E89619 0%, #D98710 100%);
+  box-shadow: 0 4px 14px rgba(246, 166, 35, 0.35);
+  transform: translateY(-1px);
 }
 
 .loading,
@@ -768,26 +877,26 @@ onUnmounted(() => {
 }
 
 /* 回到頂部按鈕樣式 */
-  .scroll-to-top-btn {
-    display: flex;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 44px;
-    height: 44px;
-    background-color: #a3a9b0;
-    color: white;
-    border: none;
-    outline: none;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
+.scroll-to-top-btn {
+  display: flex;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  background-color: #a3a9b0;
+  color: white;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
 
 .scroll-to-top-btn:hover {
   transform: translateY(-2px);
@@ -797,5 +906,4 @@ onUnmounted(() => {
 .scroll-to-top-btn:active {
   transform: translateY(0);
 }
-
 </style>
