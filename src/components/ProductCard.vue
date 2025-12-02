@@ -752,83 +752,90 @@ const refreshPurchaseHistory = async () => {
 .purchase-badge {
   position: absolute;
   top: 6px;
-  right: 30px;
+  left: 70px;
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 600;
+  height: 28px;
   z-index: 11;
   display: flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
 }
 
 
-/* 有購買記錄的徽章 - 綠色 */
+/* 有購買記錄的徽章 - 淡雅綠色 */
 .purchase-badge.has-purchase {
-  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
-  color: white;
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+  background: rgba(129, 199, 132, 0.2);
+  color: #388E3C;
+  box-shadow: 0 1px 3px rgba(76, 175, 80, 0.08);
 }
 
 .purchase-badge.has-purchase:hover {
-  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
-  transform: scale(1.05);
-  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+  background: rgba(129, 199, 132, 0.28);
+  border-color: rgba(129, 199, 132, 0.45);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.12);
 }
+
 
 /* 無購買記錄的徽章 - 淺灰色 */
 .purchase-badge.no-purchase {
-  background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%);
+  background: rgba(0, 0, 0, 0.04);
   color: #757575;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .purchase-badge.no-purchase:hover {
-  background: linear-gradient(135deg, #BDBDBD 0%, #9E9E9E 100%);
+  background: rgba(0, 0, 0, 0.06);
   color: #616161;
-  transform: scale(1.05);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.12);
 }
 
 .purchase-badge:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
 }
 
 .purchase-badge .count {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
   padding: 2px 6px;
   border-radius: 8px;
   font-size: 10px;
+  font-weight: 700;
 }
 
-/* 其他樣式保持不變 */
+/* 刪除按鈕 */
 .btn-delete {
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background-color: #f26b6b;
-  color: white;
-  border: none;
-  font-size: 13px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  font-size: 12px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
   padding: 0;
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .btn-delete:hover {
-  transform: scale(1.06);
-  box-shadow: 0 4px 10px rgba(242, 107, 107, 0.12);
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
 .product-content {
@@ -990,24 +997,20 @@ const refreshPurchaseHistory = async () => {
 .quick-category-select {
   background: rgba(230, 247, 255, 0.95);
   color: #07516a;
-  border: 1px solid #cfeffb;
   padding: 4px 8px;
+  height: 28px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
-  /* 隱藏下拉箭頭 */
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  /* 確保文字完整顯示 */
   min-width: fit-content;
   white-space: nowrap;
-  /* 移除 IE 的箭頭 */
   background-image: none;
-  /* 文字置中 */
   text-align-last: center;
 }
 
@@ -1021,7 +1024,7 @@ const refreshPurchaseHistory = async () => {
 .quick-category-select:hover:not(:disabled) {
   background: rgba(230, 247, 255, 1);
   border-color: #b8e5f7;
-  box-shadow: 0 2px 8px rgba(7, 81, 106, 0.15);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.12);
 }
 
 .quick-category-select:disabled {
@@ -1065,22 +1068,33 @@ const refreshPurchaseHistory = async () => {
 }
 
 .ellipsis-button {
-  background: rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
   font-size: 16px;
   line-height: 1;
-  padding: 4px 8px;
-  color: #4f5b62;
-  opacity: 0.95;
+  padding: 0 8px;
+  height: 22px;
+  color: #5f6368;
   cursor: pointer;
   align-self: stretch;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .ellipsis-button:focus,
 .ellipsis-button:hover {
   outline: none;
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #3c4043;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* layout for field + action */
