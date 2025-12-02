@@ -122,6 +122,7 @@ const tabCounts = computed(() => {
 const addUrlRef = ref(null)
 const adding = ref(false)
 const addError = ref('')
+const addingToCart = ref(false)
 const API_URL = 'https://surugaya.onrender.com/api/SurugayaUrls'
 
 // 快取相關常數和函數
@@ -368,6 +369,8 @@ const deleteSelected = async () => {
 const addToCart = async () => {
   if (selectedProducts.value.length === 0) return
 
+  addingToCart.value = true
+
   // 準備購物車資料
   const cartItems = selectedProducts.value.map(url => {
     const product = products.value.find(p => p.url === url)
@@ -395,6 +398,7 @@ const addToCart = async () => {
 
   if (cartItems.length === 0) {
     alert('カートに追加できる商品がありません')
+    addingToCart.value = false
     return
   }
 
@@ -447,6 +451,8 @@ const addToCart = async () => {
     }
   } catch (err) {
     alert('カートへの追加中にエラーが発生しました: ' + err.message)
+  } finally {
+    addingToCart.value = false
   }
 }
 
@@ -652,8 +658,21 @@ onUnmounted(() => {
               </svg>
               {{ selectedProducts.length }}個選択中
             </span>
-            <BaseButton v-if="selectedTab === 3" variant="primary" class="h-10 whitespace-nowrap" @click="addToCart">
-              カートに入れる
+            <BaseButton v-if="selectedTab === 3" 
+                        variant="primary" 
+                        class="h-10 whitespace-nowrap" 
+                        :disabled="addingToCart"
+                        @click="addToCart">
+              <template v-if="addingToCart">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                処理中...
+              </template>
+              <template v-else>
+                カートに入れる
+              </template>
             </BaseButton>
             <BaseButton v-else variant="danger" class="h-10 whitespace-nowrap max-md:text-xs max-md:px-2"
               @click="deleteSelected">
