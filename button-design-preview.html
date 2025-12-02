@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaseButton 設計測試</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom right, #f0f9ff, #ffffff, #faf5ff);
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .section {
+      background: white;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      color: #0ea5e9;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .label {
+      font-size: 14px;
+      color: #666;
+      font-weight: bold;
+      min-width: 100px;
+    }
+
+    /* 模擬新的按鈕樣式 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: 0;
+      outline: none;
+      user-select: none;
+    }
+
+    /* 尺寸 */
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      gap: 6px;
+    }
+    .btn-md {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      gap: 8px;
+    }
+    .btn-lg {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 12px;
+      gap: 8px;
+    }
+
+    /* 變體 */
+    .btn-default {
+      background: white;
+      border: 1px solid #e5e5e5;
+      color: #404040;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .btn-default:hover {
+      background: #fafafa;
+      border-color: #d4d4d4;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: white;
+      border: 1px solid #0284c7;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #c084fc, #9333ea);
+      color: white;
+      border: 1px solid #9333ea;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
+    }
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #a855f7, #7e22ce);
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f87171, #dc2626);
+      color: white;
+      border: 1px solid #dc2626;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #525252;
+    }
+    .btn-ghost:hover {
+      background: #f5f5f5;
+      color: #171717;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .code-block {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .button-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 BaseButton 組件設計預覽</h1>
+
+    <div class="section">
+      <h2>1️⃣ 按鈕變體（Variants）</h2>
+      
+      <div class="button-row">
+        <span class="label">Default:</span>
+        <button class="btn btn-default btn-md">預設按鈕</button>
+        <button class="btn btn-default btn-md" disabled>已停用</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Primary:</span>
+        <button class="btn btn-primary btn-md">主要操作</button>
+        <button class="btn btn-primary btn-md" disabled>已停用</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Secondary:</span>
+        <button class="btn btn-secondary btn-md">次要操作</button>
+        <button class="btn btn-secondary btn-md" disabled>已停用</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Danger:</span>
+        <button class="btn btn-danger btn-md">刪除操作</button>
+        <button class="btn btn-danger btn-md" disabled>已停用</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Ghost:</span>
+        <button class="btn btn-ghost btn-md">輕量操作</button>
+        <button class="btn btn-ghost btn-md" disabled>已停用</button>
+      </div>
+
+      <div class="code-block">
+&lt;BaseButton variant="primary"&gt;主要操作&lt;/BaseButton&gt;
+&lt;BaseButton variant="secondary"&gt;次要操作&lt;/BaseButton&gt;
+&lt;BaseButton variant="danger"&gt;刪除操作&lt;/BaseButton&gt;
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>2️⃣ 按鈕尺寸（Sizes）</h2>
+      
+      <div class="button-row">
+        <span class="label">Small:</span>
+        <button class="btn btn-primary btn-sm">小按鈕</button>
+        <button class="btn btn-secondary btn-sm">小按鈕</button>
+        <button class="btn btn-danger btn-sm">小按鈕</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Medium:</span>
+        <button class="btn btn-primary btn-md">中等按鈕</button>
+        <button class="btn btn-secondary btn-md">中等按鈕</button>
+        <button class="btn btn-danger btn-md">中等按鈕</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">Large:</span>
+        <button class="btn btn-primary btn-lg">大按鈕</button>
+        <button class="btn btn-secondary btn-lg">大按鈕</button>
+        <button class="btn btn-danger btn-lg">大按鈕</button>
+      </div>
+
+      <div class="code-block">
+&lt;BaseButton size="sm"&gt;小按鈕&lt;/BaseButton&gt;
+&lt;BaseButton size="md"&gt;中等按鈕&lt;/BaseButton&gt;
+&lt;BaseButton size="lg"&gt;大按鈕&lt;/BaseButton&gt;
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3️⃣ 實際使用場景</h2>
+      
+      <div class="button-row">
+        <span class="label">購物車:</span>
+        <button class="btn btn-primary btn-md">🛒 加入購物車</button>
+        <button class="btn btn-default btn-md">⭐ 加入願望清單</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">選擇操作:</span>
+        <button class="btn btn-danger btn-md">🗑️ 刪除選中 (3)</button>
+        <button class="btn btn-ghost btn-md">✕ 取消選擇</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">篩選:</span>
+        <button class="btn btn-secondary btn-sm">特價中</button>
+        <button class="btn btn-secondary btn-sm">無庫存</button>
+        <button class="btn btn-secondary btn-sm">已購買</button>
+      </div>
+
+      <div class="button-row">
+        <span class="label">工具列:</span>
+        <button class="btn btn-primary btn-md">🔄 重新載入</button>
+        <button class="btn btn-default btn-md">➕ 新增 URL</button>
+        <button class="btn btn-ghost btn-md">⬆️ 回到頂部</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4️⃣ 配色說明</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px;">
+        <div style="padding: 16px; background: linear-gradient(135deg, #38bdf8, #0284c7); border-radius: 8px; color: white;">
+          <strong>Primary - 淺藍色</strong>
+          <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">主要操作、連結、選中狀態</p>
+        </div>
+        <div style="padding: 16px; background: linear-gradient(135deg, #c084fc, #9333ea); border-radius: 8px; color: white;">
+          <strong>Secondary - 淺紫色</strong>
+          <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">次要操作、裝飾元素、標籤</p>
+        </div>
+        <div style="padding: 16px; background: linear-gradient(135deg, #f87171, #dc2626); border-radius: 8px; color: white;">
+          <strong>Danger - 紅色</strong>
+          <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">刪除操作、錯誤提示</p>
+        </div>
+        <div style="padding: 16px; background: white; border: 1px solid #e5e5e5; border-radius: 8px;">
+          <strong>Default - 白色/灰色</strong>
+          <p style="margin: 8px 0 0; font-size: 13px; color: #666;">一般操作、取消按鈕</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>✨ 設計特點</h2>
+      <ul style="line-height: 1.8; color: #666;">
+        <li>✅ <strong>Mobile-First</strong>：手機優先設計，桌機版自動繼承並擴展</li>
+        <li>✅ <strong>漸層效果</strong>：使用淺藍到深藍、淺紫到深紫的漸層，增加質感</li>
+        <li>✅ <strong>微互動</strong>：hover 時輕微上移，提供視覺反饋</li>
+        <li>✅ <strong>陰影系統</strong>：統一的陰影效果，增強層次感</li>
+        <li>✅ <strong>無障礙</strong>：支援 focus ring、禁用狀態清晰</li>
+        <li>✅ <strong>響應式</strong>：所有按鈕在手機上自動擴展為全寬</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

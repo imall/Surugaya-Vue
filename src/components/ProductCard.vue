@@ -776,6 +776,18 @@ const refreshPurchaseHistory = async () => {
 }
 
 
+/* 有購買記錄的徽章 - 綠色 */
+.purchase-badge.has-purchase {
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.purchase-badge.has-purchase:hover {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
 
 /* 無購買記錄的徽章 - 淺灰色 */
 .purchase-badge.no-purchase {
