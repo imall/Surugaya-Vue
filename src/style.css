@@ -80,6 +80,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   @apply m-0 min-w-[320px] min-h-screen bg-neutral-50 text-neutral-800;
 }
