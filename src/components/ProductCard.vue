@@ -514,17 +514,6 @@ const refreshPurchaseHistory = async () => {
 
 <template>
   <div class="product-card" :class="{ selected: isSelected, purchased: hasPurchaseHistory }">
-    <button @click="handleDelete" class="btn-delete" title="削除">×</button>
-
-    <!-- 購買歷史徽章 (右上角) - 可點擊 -->
-    <div class="purchase-badge" :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
-      :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
-      @click.stop="openPurchaseHistoryModal">
-      <span v-if="hasPurchaseHistory">✓ 購入済</span>
-      <span v-else>購入済</span>
-      <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
-    </div>
-
     <!-- purpose category dropdown (top-left) -->
     <div class="card-purpose-badge">
       <select v-model="quickCategoryId" @change="quickUpdateCategory" class="quick-category-select"
@@ -536,12 +525,23 @@ const refreshPurchaseHistory = async () => {
       </select>
     </div>
 
+
+    <!-- 購買歷史徽章 (右上角) - 可點擊 -->
+    <div class="purchase-badge" :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
+      :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
+      @click.stop="openPurchaseHistoryModal">
+      <span v-if="hasPurchaseHistory">✓ 購入済</span>
+      <span v-else>購入済</span>
+      <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
+    </div>
+
     <div class="product-content">
       <div class="product-image" @click="handleToggleSelect">
         <img :src="product.imageUrl" :alt="product.title" />
         <div v-if="isSelected" class="selected-overlay"></div>
         <!-- 實體店家標記 -->
         <div v-if="isPhysicalStore" class="store-badge" title="実店舗">🏪</div>
+
       </div>
 
       <div class="product-info">
@@ -589,6 +589,7 @@ const refreshPurchaseHistory = async () => {
     <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>編輯項目</h3>
+
         <div class="modal-row field-with-action">
           <label class="small-label">用途</label>
           <div class="field-action-row">
@@ -610,6 +611,7 @@ const refreshPurchaseHistory = async () => {
         </div>
 
         <div class="modal-actions">
+          <button class="btn-delete-item" @click="handleDelete" title="刪除此商品">🗑️ 刪除</button>
           <button class="btn-save-all" @click="saveAll" :disabled="saving">全部儲存</button>
           <button class="btn-cancel" @click="closeModal" :disabled="saving">取消</button>
         </div>
@@ -731,7 +733,7 @@ const refreshPurchaseHistory = async () => {
 .product-card {
   display: flex;
   gap: 8px;
-  padding: 40px 12px 12px;
+  padding: 12px;
   border: 1px solid #e6eef6;
   background-color: #fcfeff;
   border-radius: 6px;
@@ -748,11 +750,10 @@ const refreshPurchaseHistory = async () => {
 }
 
 
-/* 購買徽章 */
 .purchase-badge {
   position: absolute;
-  top: 6px;
-  left: 70px;
+  top: 4px;
+  right: 4px;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 11px;
@@ -764,30 +765,30 @@ const refreshPurchaseHistory = async () => {
   gap: 4px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(8px);
   box-sizing: border-box;
 }
 
 
 /* 有購買記錄的徽章 - 淡雅綠色 */
 .purchase-badge.has-purchase {
-  background: rgba(129, 199, 132, 0.2);
-  color: #388E3C;
+  background: #C1F0C1    ;
+  color: #2E7D32;
   box-shadow: 0 1px 3px rgba(76, 175, 80, 0.08);
 }
 
 .purchase-badge.has-purchase:hover {
-  background: rgba(129, 199, 132, 0.28);
-  border-color: rgba(129, 199, 132, 0.45);
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.12);
+  background: rgba(129, 199, 132);
+  border-color: rgba(129, 199, 132, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.18);
 }
 
 
 /* 無購買記錄的徽章 - 淺灰色 */
 .purchase-badge.no-purchase {
-  background: rgba(0, 0, 0, 0.04);
-  color: #757575;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  background: #efefef;
+  color: #666;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .purchase-badge.no-purchase:hover {
@@ -806,36 +807,6 @@ const refreshPurchaseHistory = async () => {
   border-radius: 8px;
   font-size: 10px;
   font-weight: 700;
-}
-
-/* 刪除按鈕 */
-.btn-delete {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.15);
-  color: #dc2626;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 10;
-  padding: 0;
-  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.08);
-  backdrop-filter: blur(8px);
-}
-
-.btn-delete:hover {
-  background: rgba(239, 68, 68, 0.22);
-  border-color: rgba(239, 68, 68, 0.35);
-  transform: translateY(-1px) scale(1.05);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
 .product-content {
@@ -981,7 +952,7 @@ const refreshPurchaseHistory = async () => {
   box-shadow: none;
 }
 
-.btn-purpose {
+.btn-purpose,.btn-series {
   background: linear-gradient(180deg, #e6f7ff 0%, #d0f1ff 100%);
   color: #07516a;
   border: 1px solid #c6eaf6;
@@ -1055,16 +1026,67 @@ const refreshPurchaseHistory = async () => {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-save-all:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f1e6fb 0%, #e6d9f5 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(74, 43, 102, 0.15);
+}
+
+.btn-save-all:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 刪除按鈕（在模態框內） */
+.btn-delete-item {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.btn-delete-item:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+}
+
+.btn-delete-item:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-cancel {
   background-color: #9e9e9e;
   color: white;
   border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 8px 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: #757575;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .ellipsis-button {
@@ -1177,8 +1199,13 @@ const refreshPurchaseHistory = async () => {
 .modal-actions {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 30px;
+}
+
+.modal-actions .btn-delete-item {
+  margin-right: auto;
 }
 
 .category {
