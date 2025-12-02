@@ -564,8 +564,7 @@ onUnmounted(() => {
             ? 'bg-sky-500 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(3)">
-          購物車 <span 
-            class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
+          購物車 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
         </button>
       </div>
     </div>
