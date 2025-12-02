@@ -485,7 +485,7 @@ const refreshPurchaseHistory = async () => {
         'Accept': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error('購買歷史の取得に失敗しました')
     }
@@ -495,7 +495,7 @@ const refreshPurchaseHistory = async () => {
 
     // 更新購買歷史
     const newPurchaseHistory = Array.isArray(result) ? result : (result.purchaseHistory || [])
-    
+
     emit('updated', {
       url: props.product.url,
       purchaseHistory: newPurchaseHistory
@@ -517,10 +517,9 @@ const refreshPurchaseHistory = async () => {
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
     <!-- 購買歷史徽章 (右上角) - 可點擊 -->
-    <div class="purchase-badge" 
-         :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
-         :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
-         @click.stop="openPurchaseHistoryModal">
+    <div class="purchase-badge" :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
+      :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
+      @click.stop="openPurchaseHistoryModal">
       <span v-if="hasPurchaseHistory">✓ 購入済</span>
       <span v-else>購入済</span>
       <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
@@ -1466,5 +1465,4 @@ const refreshPurchaseHistory = async () => {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 </style>
