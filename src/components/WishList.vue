@@ -641,13 +641,14 @@ onUnmounted(() => {
         </div>
 
         <div :class="[
-          'flex items-center rounded-lg transition-all duration-300 pt-4'
+          'flex items-center rounded-lg transition-all duration-300 pt-4',
+          { 'opacity-50 pointer-events-none': loading.value }
         ]">
           <div v-if="selectedProducts.length === 0" class="w-full">
             <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
           </div>
 
-          <div v-else class="flex items-center gap-4 w-full">
+          <div v-else class="flex items-center justify-end gap-4 w-full">
             <span class="text-sm font-semibold text-sky-600 whitespace-nowrap flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
