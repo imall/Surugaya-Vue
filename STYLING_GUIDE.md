@@ -11,6 +11,46 @@
 
 ---
 
+## 📦 已完成組件重構清單
+
+### ✅ 完全使用 Tailwind CSS 的組件
+
+以下組件已完全改用 Tailwind CSS 類別，無傳統 CSS：
+
+1. **BaseButton.vue** - 基礎按鈕組件
+   - 使用 `:class` 動態綁定
+   - 預設內距 `px-4 py-2`
+   - 外部可用 `p-0!` 覆蓋
+
+2. **RefreshButton.vue** - 重新整理按鈕
+   - 使用 `p-0!` 強制覆蓋內距
+   - Tailwind v4 語法正確
+
+3. **AddUrlButton.vue** - 新增 URL 按鈕
+   - 使用 `p-0!` 強制覆蓋內距
+   - 完全 Tailwind 化
+
+4. **WishList.vue Header 區域** - 願望清單標題、標籤、控制區
+   - **主標題區**: `bg-white rounded-xl shadow-sm mb-5 p-5`
+   - **標籤導航**: 使用 `bg-linear-to-br` 漸層（Tailwind v4）
+   - **控制區**: 排序、搜尋、篩選、工具列全部 Tailwind 化
+   - **載入/錯誤狀態**: 完全使用 Tailwind 類別
+
+### 🔄 部分使用傳統 CSS 的組件
+
+以下組件仍有傳統 CSS，但已優化：
+
+1. **WishList.vue**
+   - Header 已完全 Tailwind 化
+   - 商品網格（`.product-grid`）仍使用傳統 CSS（因複雜的響應式佈局）
+   - 回到頂部按鈕仍使用傳統 CSS
+
+2. **ProductCard.vue**
+   - 尚未全面重構
+   - 待處理
+
+---
+
 ## 🎨 配色管理
 
 ### 配色定義位置

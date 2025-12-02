@@ -530,92 +530,176 @@ onUnmounted(() => {
       </svg>
     </button>
 
-    <div class="header">
-      <div class="header-row">
-        <div class="title-row">
-          <h1>駿河屋 願望清單</h1>
-          <RefreshButton :loading="loading" @refresh="handleRefresh" />
-        </div>
-
-        <div class="tabs">
-          <button :class="['tab', { active: selectedTab === null }]" @click="changeTab(null)">全部 ({{
-            tabCounts.all }})</button>
-          <button :class="['tab', { active: selectedTab === 0 }]" @click="changeTab(0)">未分類 ({{
-            tabCounts[0] }})</button>
-          <button :class="['tab', { active: selectedTab === 1 }]" @click="changeTab(1)">購買 ({{
-            tabCounts[1] }})</button>
-          <button :class="['tab', { active: selectedTab === 2 }]" @click="changeTab(2)">考慮 ({{
-            tabCounts[2] }})</button>
-          <button :class="['tab', { active: selectedTab === 3 }]" @click="changeTab(3)">購物車 ({{
-            tabCounts[3] }})</button>
-        </div>
-
-        <div class="header-actions">
-          <div class="controls-wrap">
-            <div class="controls">
-              <label for="sort-select" class="label-name">並び替え:</label>
-              <select id="sort-select" v-model="sortOption">
-                <option value="default">デフォルト</option>
-                <option value="price-asc">価格: 安い順</option>
-                <option value="price-desc">価格: 高い順</option>
-                <option value="name-asc">名前: A→Z</option>
-                <option value="name-desc">名前: Z→A</option>
-              </select>
-            </div>
-            <div class="controls">
-              <label for="series-search" class="label-name">作品で絞る:</label>
-              <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
-                class="series-search-input" />
-            </div>
-          </div>
-          <div class="controls-and-filters">
-            <div class="filters">
-              <label class="filter-label">
-                <input type="checkbox" v-model="filterOnSale" />
-                <span>特價中</span>
-              </label>
-              <label class="filter-label">
-                <input type="checkbox" v-model="filterOutOfStock" />
-                <span>無庫存</span>
-              </label>
-              <label class="filter-label">
-                <input type="checkbox" v-model="filterHidePhysicalStore" />
-                <span>隱藏實體店</span>
-              </label>
-              <label class="filter-label filter-purchased">
-                <input type="checkbox" v-model="filterPurchasedOnly" />
-                <span>只顯示已購買</span>
-              </label>
-              <label class="filter-label filter-purchased">
-                <input type="checkbox" v-model="filterHidePurchased" />
-                <span>隱藏已購買</span>
-              </label>
-            </div>
-          </div>
-          <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
-            <span v-if="selectedProducts.length > 0" class="selected-count">{{ selectedProducts.length
-            }}個が選択されています</span>
-            <!-- 購物車標籤時顯示加入購物車按鈕 -->
-            <BaseButton v-if="selectedTab === 3" variant="primary" class="btn-add-to-cart" @click="addToCart"
-              :disabled="selectedProducts.length === 0">
-              カートに入れる
-            </BaseButton>
-            <!-- 其他標籤時顯示刪除按鈕 -->
-            <BaseButton v-else variant="danger" class="btn-delete-selected" @click="deleteSelected"
-              :disabled="selectedProducts.length === 0">
-              選択した商品を削除
-            </BaseButton>
-          </div>
-          <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
-        </div>
+    <!-- Header 主標題區 -->
+    <div class="bg-white rounded-xl shadow-sm mb-5 p-5">
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-3xl font-semibold text-gray-800 flex items-center gap-3 m-0">
+          📦 駿河屋 願望清單
+        </h1>
+        <RefreshButton :loading="loading" @refresh="handleRefresh" />
       </div>
     </div>
 
-    <div v-if="loading" class="loading">
+    <!-- 標籤導航 -->
+    <div class="bg-white rounded-xl shadow-sm mb-5 p-4">
+      <div class="flex gap-2.5 flex-wrap">
+        <button 
+          :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+            selectedTab === null
+              ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
+              : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+          ]" 
+          @click="changeTab(null)"
+        >
+          全部 <span :class="selectedTab === null ? 'bg-white/30' : 'bg-white/25'" class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
+        </button>
+        <button 
+          :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+            selectedTab === 0
+              ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
+              : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+          ]" 
+          @click="changeTab(0)"
+        >
+          未分類 <span :class="selectedTab === 0 ? 'bg-white/30' : 'bg-white/25'" class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
+        </button>
+        <button 
+          :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+            selectedTab === 1
+              ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
+              : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+          ]" 
+          @click="changeTab(1)"
+        >
+          購買 <span :class="selectedTab === 1 ? 'bg-white/30' : 'bg-white/25'" class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
+        </button>
+        <button 
+          :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+            selectedTab === 2
+              ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
+              : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+          ]" 
+          @click="changeTab(2)"
+        >
+          考慮 <span :class="selectedTab === 2 ? 'bg-white/30' : 'bg-white/25'" class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
+        </button>
+        <button 
+          :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+            selectedTab === 3
+              ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
+              : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+          ]" 
+          @click="changeTab(3)"
+        >
+          購物車 <span :class="selectedTab === 3 ? 'bg-white/30' : 'bg-white/25'" class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 控制區 -->
+    <div class="bg-white rounded-xl shadow-sm mb-5 p-5 relative">
+      <!-- 排序和搜尋 -->
+      <div class="flex gap-5 mb-4 flex-wrap">
+        <div class="flex items-center gap-2.5 flex-1 min-w-[200px]">
+          <label for="sort-select" class="text-sm font-medium text-gray-600 whitespace-nowrap">並び替え:</label>
+          <select 
+            id="sort-select" 
+            v-model="sortOption" 
+            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 cursor-pointer transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10"
+          >
+            <option value="default">デフォルト</option>
+            <option value="price-asc">価格: 安い順</option>
+            <option value="price-desc">価格: 高い順</option>
+            <option value="name-asc">名前: A→Z</option>
+            <option value="name-desc">名前: Z→A</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2.5 flex-1 min-w-[200px]">
+          <label for="series-search" class="text-sm font-medium text-gray-600 whitespace-nowrap">作品で絞る:</label>
+          <input 
+            id="series-search" 
+            v-model="seriesSearchKeyword" 
+            type="text" 
+            placeholder="作品名を入力して検索..."
+            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10" 
+          />
+        </div>
+      </div>
+
+      <!-- 篩選選項 -->
+      <div class="flex gap-5 p-4 bg-gray-50 rounded-lg mb-4 flex-wrap">
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+            <input type="checkbox" v-model="filterOnSale" class="cursor-pointer w-4 h-4" />
+            <span>特價中</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+            <input type="checkbox" v-model="filterOutOfStock" class="cursor-pointer w-4 h-4" />
+            <span>無庫存</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+            <input type="checkbox" v-model="filterHidePhysicalStore" class="cursor-pointer w-4 h-4" />
+            <span>隱藏實體店</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap border-l-3 border-green-500 pl-5 ml-2.5">
+          <label class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+            <input type="checkbox" v-model="filterPurchasedOnly" class="cursor-pointer w-4 h-4" />
+            <span>✅ 只顯示已購買</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+            <input type="checkbox" v-model="filterHidePurchased" class="cursor-pointer w-4 h-4" />
+            <span>🚫 隱藏已購買</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 工具列 -->
+      <div 
+        :class="[
+          'flex items-center gap-4 px-4 py-3 bg-linear-to-r from-gray-100 to-gray-50 border border-gray-300 rounded-lg transition-all duration-300',
+          selectedProducts.length === 0 ? 'h-0 opacity-0 overflow-hidden border-none p-0' : 'h-[50px] opacity-100'
+        ]"
+      >
+        <span v-if="selectedProducts.length > 0" class="text-sm font-semibold text-sky-500 whitespace-nowrap">
+          {{ selectedProducts.length }}個が選択されています
+        </span>
+        <!-- 購物車標籤時顯示加入購物車按鈕 -->
+        <BaseButton 
+          v-if="selectedTab === 3" 
+          variant="primary" 
+          class="whitespace-nowrap" 
+          @click="addToCart"
+          :disabled="selectedProducts.length === 0"
+        >
+          カートに入れる
+        </BaseButton>
+        <!-- 其他標籤時顯示刪除按鈕 -->
+        <BaseButton 
+          v-else 
+          variant="danger" 
+          class="whitespace-nowrap" 
+          @click="deleteSelected"
+          :disabled="selectedProducts.length === 0"
+        >
+          選択した商品を削除
+        </BaseButton>
+      </div>
+
+      <!-- 新增按鈕 -->
+      <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
+    </div>
+
+    <div v-if="loading" class="text-center py-15 px-5 text-base bg-white rounded-xl my-5">
       読み込み中...
     </div>
 
-    <div v-else-if="error" class="error">
+    <div v-else-if="error" class="text-center py-15 px-5 text-base text-red-500 border-2 border-red-200 bg-red-50 rounded-xl my-5">
       エラーが発生しました: {{ error }}
     </div>
 
@@ -625,155 +709,42 @@ onUnmounted(() => {
         @delete="deleteProduct" @updated="handleUpdated" />
     </div>
 
-    <div v-else class="loading">
+    <div v-else class="text-center py-15 px-5 text-base bg-white rounded-xl my-5">
       商品が見つかりませんでした。
     </div>
   </div>
 </template>
 
-
 <style scoped>
+/* ===================================
+   容器與基礎樣式
+   =================================== */
 .wishlist-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 10px;
+  padding: 20px;
   font-family: "メイリオ", Meiryo, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", sans-serif;
   width: 100%;
   box-sizing: border-box;
   position: relative;
 }
 
-.header-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  position: relative;
-}
-
-.header h1 {
-  width: 100%;
-  font-size: 24px;
-  color: #333;
-  margin: 10px 0;
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  position: relative;
-}
-
-.title-row h1 {
-  margin: 10px 0;
-  flex: 1;
-}
-
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.controls label {
-  font-size: 14px;
-  color: #333;
-}
-
-.controls select {
-  padding: 6px 8px;
-  font-size: 13px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.series-search-input {
-  padding: 6px 8px;
-  font-size: 13px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  min-width: 180px;
-  transition: border-color 0.2s ease;
-}
-
-.series-search-input:focus {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-top: 0;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  min-height: 44px;
-}
-
-.toolbar-empty {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.selected-count {
-  font-size: 14px;
-  color: #333;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(100% - 140px);
-}
-
-.btn-delete-selected {
-  padding: 8px 16px;
-  font-size: 14px;
-}
-
-.btn-add-to-cart {
-  padding: 8px 16px;
-  font-size: 14px;
-  background: linear-gradient(180deg, #F6A623 0%, #E89619 100%);
-  color: #FFFFFF;
-  border: 1px solid #E89619;
-  box-shadow: 0 2px 8px rgba(246, 166, 35, 0.25);
-}
-
-.btn-add-to-cart:hover:not(:disabled) {
-  background: linear-gradient(180deg, #E89619 0%, #D98710 100%);
-  box-shadow: 0 4px 14px rgba(246, 166, 35, 0.35);
-  transform: translateY(-1px);
-}
-
-.loading,
-.error {
-  text-align: center;
-  padding: 40px;
-  font-size: 16px;
-}
-
-.error {
-  color: #d32f2f;
-}
-
+/* ===================================
+   商品網格
+   =================================== */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 15px;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* ===================================
+   響應式佈局
+   =================================== */
 @media (max-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -786,9 +757,43 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .wishlist-container {
+    padding: 12px;
+  }
+
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    padding: 12px;
+  }
+
+  /* 手機版優化：縮小 header 間距 */
+  .bg-white.rounded-xl {
+    margin-bottom: 12px !important;
+    padding: 12px !important;
+  }
+
+  /* 手機版：縮小標題字體 */
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  /* 手機版：標籤更緊湊 */
+  .flex.gap-2\.5 button {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* 手機版：篩選區域更緊湊 */
+  .flex.gap-5.p-4 {
+    padding: 12px !important;
+    gap: 12px !important;
+  }
+
+  /* 手機版：排序控制更緊湊 */
+  .flex.gap-5.mb-4 {
+    gap: 12px !important;
+    margin-bottom: 12px !important;
   }
 }
 
@@ -797,121 +802,9 @@ onUnmounted(() => {
     grid-template-columns: repeat(1, 1fr);
     gap: 10px;
   }
-}
 
-@media (max-width: 768px) {
-  .header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .title-row h1 {
-    font-size: 20px;
-  }
-
-  /* 手機版隱藏重新整理按鈕 */
-  .title-row :deep(.refresh-button) {
-    display: none;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .toolbar {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {}
-
-/* Responsive layout for filters */
-.controls-and-filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.filter-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  writing-mode: horizontal-tb;
-  /* force horizontal text */
-  font-size: 14px;
-}
-
-.filter-label.filter-purchased {
-  border-left: 2px solid #4CAF50;
-  padding-left: 12px;
-  margin-left: 8px;
-}
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin: 8px 0;
-}
-
-.tab {
-  background: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.tab.active {
-  background: #0066cc;
-  color: white;
-  border-color: #005bb5;
-}
-
-.controls-wrap {
-  display: flex;
-  gap: 8px;
-}
-
-@media (max-width: 600px) {
-
-  .controls-wrap {
-    width: 80%;
-  }
-
-  .controls-wrap :last-child {
-    width: 100%;
-  }
-
-  .header-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .controls-and-filters {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 8px;
-  }
-
-  .filters {
-    gap: 10px;
+  .wishlist-container {
+    padding: 8px;
   }
 }
 

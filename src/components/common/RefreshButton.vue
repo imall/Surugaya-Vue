@@ -1,6 +1,6 @@
 <template>
   <BaseButton 
-    class="absolute right-0 top-0 bottom-0 my-auto w-9 h-9 p-0! text-xl transition-all duration-200 active:translate-x-0.5 active:translate-y-0.5 active:shadow-sm disabled:opacity-50" 
+    class="w-9 h-9 p-0! text-xl transition-all duration-200 active:translate-x-0.5 active:translate-y-0.5 active:shadow-sm disabled:opacity-50 shrink-0" 
     variant="default" 
     :disabled="loading" 
     :title="loading ? '読み込み中...' : 'データを再読み込み'"
