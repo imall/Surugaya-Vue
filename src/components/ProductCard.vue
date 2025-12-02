@@ -336,15 +336,20 @@ const addPurchaseRecord = async () => {
     }
 
     const result = await response.json()
+    console.log('API 回傳的購買記錄資料:', result)
     
-    // 通知父組件重新載入資料
+    // 通知父組件更新購買歷史
     alert('購買記錄を追加しました')
     closePurchaseModal()
     
-    // 觸發更新，讓父組件重新載入商品列表
+    // 觸發更新，傳遞新的購買歷史資料
+    // API 應該回傳完整的 purchaseHistory 陣列
+    const newPurchaseHistory = result.purchaseHistory || (Array.isArray(result) ? result : [result])
+    console.log('傳遞給父組件的購買歷史:', newPurchaseHistory)
+    
     emit('updated', { 
       url: props.product.url,
-      purchaseAdded: true 
+      purchaseHistory: newPurchaseHistory
     })
     
   } catch (err) {

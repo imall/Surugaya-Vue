@@ -466,21 +466,30 @@ const addToCart = async () => {
 }
 
 const handleUpdated = (payload) => {
-  // 如果是新增購買記錄，重新載入整個商品列表
-  if (payload.purchaseAdded) {
-    clearCache()
-    fetchProducts()
-    return
-  }
-
+  console.log('handleUpdated 收到的 payload:', payload)
+  
   const idx = products.value.findIndex(p => {
     return p.url === payload.url
   })
-  if (idx === -1) return
-  const target = products.value[idx]
-  if (payload.seriesName !== undefined) target.seriesName = payload.seriesName
-  if (payload.purposeCategoryId !== undefined) target.purposeCategoryId = payload.purposeCategoryId
-  if (payload.purposeCategory !== undefined) target.purposeCategory = payload.purposeCategory
+  if (idx === -1) {
+    console.warn('找不到對應的商品:', payload.url)
+    return
+  }
+  
+  console.log('更新前的商品資料:', products.value[idx])
+  
+  // 使用 Object.assign 或創建新物件來確保響應式更新
+  const updatedProduct = { ...products.value[idx] }
+  
+  if (payload.seriesName !== undefined) updatedProduct.seriesName = payload.seriesName
+  if (payload.purposeCategoryId !== undefined) updatedProduct.purposeCategoryId = payload.purposeCategoryId
+  if (payload.purposeCategory !== undefined) updatedProduct.purposeCategory = payload.purposeCategory
+  if (payload.purchaseHistory !== undefined) updatedProduct.purchaseHistory = payload.purchaseHistory
+  
+  // 替換整個物件以觸發響應式更新
+  products.value[idx] = updatedProduct
+  
+  console.log('更新後的商品資料:', products.value[idx])
 
   // 清除快取，因為資料已更新
   clearCache()
