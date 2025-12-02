@@ -59,6 +59,12 @@ const localSeriesName = ref(props.product.seriesName || '')
 const localPurposeCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const saving = ref(false)
 
+// 購買記錄彈窗狀態
+const showPurchaseModal = ref(false)
+const purchaseDate = ref('')
+const purchaseNote = ref('')
+const savingPurchase = ref(false)
+
 // 快速分類選單
 const quickCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const quickSaving = ref(false)
@@ -281,7 +287,70 @@ const saveAll = async () => {
   }
 }
 
+// 打開購買記錄彈窗
+const openPurchaseModal = () => {
+  // 設定預設日期為今天
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  purchaseDate.value = `${year}-${month}-${day}`
+  purchaseNote.value = ''
+  showPurchaseModal.value = true
+}
 
+const closePurchaseModal = () => {
+  showPurchaseModal.value = false
+  purchaseDate.value = ''
+  purchaseNote.value = ''
+}
+
+// 新增購買記錄
+const addPurchaseRecord = async () => {
+  if (!purchaseDate.value) {
+    alert('購買日期不能為空')
+    return
+  }
+
+  savingPurchase.value = true
+  try {
+    const response = await fetch('https://surugaya.onrender.com/api/SurugayaPurchase', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        url: props.product.url,
+        date: purchaseDate.value,
+        note: purchaseNote.value || null
+      })
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(text || '購買記錄の追加に失敗しました')
+    }
+
+    const result = await response.json()
+    
+    // 通知父組件重新載入資料
+    alert('購買記錄を追加しました')
+    closePurchaseModal()
+    
+    // 觸發更新，讓父組件重新載入商品列表
+    emit('updated', { 
+      url: props.product.url,
+      purchaseAdded: true 
+    })
+    
+  } catch (err) {
+    alert('購買記錄の追加中にエラーが発生しました: ' + err.message)
+    console.error('Error adding purchase record:', err)
+  } finally {
+    savingPurchase.value = false
+  }
+}
 </script>
 
 <template>
@@ -351,6 +420,14 @@ const saveAll = async () => {
           リストに追加された日: {{ formatDate(product.lastUpdated) }}
         </div>
 
+        <!-- 購買記錄按鈕 -->
+        <div class="purchase-action">
+          <button class="btn-mark-purchased" @click.stop="openPurchaseModal" :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回` : '購入済にする'">
+            <span v-if="hasPurchaseHistory">📝 購買記錄 ({{ purchaseCount }})</span>
+            <span v-else>✓ 購入済にする</span>
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -381,6 +458,32 @@ const saveAll = async () => {
         <div class="modal-actions">
           <button class="btn-save-all" @click="saveAll" :disabled="saving">全部儲存</button>
           <button class="btn-cancel" @click="closeModal" :disabled="saving">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 購買記錄彈窗 -->
+    <div v-if="showPurchaseModal" class="modal-overlay" @click.self="closePurchaseModal">
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <h3>新增購買記錄</h3>
+
+        <div class="modal-row field-with-action">
+          <label class="small-label">購買日期</label>
+          <div class="field-action-row">
+            <input type="date" v-model="purchaseDate" class="date-input" />
+          </div>
+        </div>
+
+        <div class="modal-row field-with-action">
+          <label class="small-label">備註</label>
+          <div class="field-action-row">
+            <input v-model="purchaseNote" class="note-input" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-save" @click="addPurchaseRecord" :disabled="savingPurchase">儲存購買記錄</button>
+          <button class="btn-cancel" @click="closePurchaseModal" :disabled="savingPurchase">取消</button>
         </div>
       </div>
     </div>
@@ -880,6 +983,75 @@ const saveAll = async () => {
 .date-info {
   font-size: 12px;
   color: #666;
+}
+
+/* 購買記錄按鈕 */
+.purchase-action {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.btn-mark-purchased {
+  flex: 1;
+  padding: 6px 12px;
+  background: linear-gradient(180deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  border: 1px solid #4CAF50;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.btn-mark-purchased:hover {
+  background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.btn-mark-purchased:active {
+  transform: translateY(0);
+}
+
+/* 購買記錄彈窗的輸入框 */
+.date-input,
+.note-input {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #d6eaf5;
+  background: white;
+  min-width: 0;
+}
+
+.btn-save {
+  background: linear-gradient(180deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  border: 1px solid #4CAF50;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

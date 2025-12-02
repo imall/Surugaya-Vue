@@ -466,6 +466,13 @@ const addToCart = async () => {
 }
 
 const handleUpdated = (payload) => {
+  // 如果是新增購買記錄，重新載入整個商品列表
+  if (payload.purchaseAdded) {
+    clearCache()
+    fetchProducts()
+    return
+  }
+
   const idx = products.value.findIndex(p => {
     return p.url === payload.url
   })
