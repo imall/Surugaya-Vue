@@ -747,16 +747,6 @@ const refreshPurchaseHistory = async () => {
   box-shadow: 0 4px 14px rgba(127, 179, 213, 0.12);
 }
 
-/* 已購買商品的樣式 */
-.product-card.purchased {
-  border-color: #81C784;
-  background: linear-gradient(135deg, #F1F8F4 0%, #FAFFFE 100%);
-}
-
-.product-card.purchased.selected {
-  border-color: #66BB6A;
-  box-shadow: 0 4px 14px rgba(102, 187, 106, 0.2);
-}
 
 /* 購買徽章 */
 .purchase-badge {
