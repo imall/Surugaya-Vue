@@ -851,7 +851,9 @@ const refreshPurchaseHistory = async () => {
 
 .product-image {
   flex-shrink: 0;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
   position: relative;
   cursor: pointer;
@@ -869,7 +871,6 @@ const refreshPurchaseHistory = async () => {
   object-fit: contain;
   border: 1px solid #e0e0e0;
   transition: opacity 0.2s ease;
-  vertical-align: middle;
 }
 
 .selected-overlay {
