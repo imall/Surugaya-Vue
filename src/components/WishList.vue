@@ -568,11 +568,11 @@ onUnmounted(() => {
               </label>
               <label class="filter-label filter-purchased">
                 <input type="checkbox" v-model="filterPurchasedOnly" />
-                <span>✅ 只顯示已購買</span>
+                <span>只顯示已購買</span>
               </label>
               <label class="filter-label filter-purchased">
                 <input type="checkbox" v-model="filterHidePurchased" />
-                <span>🚫 隱藏已購買</span>
+                <span>隱藏已購買</span>
               </label>
             </div>
           </div>
