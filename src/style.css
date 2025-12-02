@@ -1,14 +1,78 @@
 @import "tailwindcss";
 
+/* Tailwind v4 主題配置 - 使用 CSS 變數 */
+@theme {
+  /* 主要配色 - 淺藍色系 */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+
+  /* 次要配色 - 淡紫色系（紫羅蘭）*/
+  --color-secondary-50: #faf5ff;
+  --color-secondary-100: #f3e8ff;
+  --color-secondary-200: #e9d5ff;
+  --color-secondary-300: #d8b4fe;
+  --color-secondary-400: #c084fc;
+  --color-secondary-500: #a855f7;
+  --color-secondary-600: #9333ea;
+  --color-secondary-700: #7e22ce;
+  --color-secondary-800: #6b21a8;
+  --color-secondary-900: #581c87;
+
+  /* 功能色 - 成功 */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+
+  /* 功能色 - 危險/錯誤 */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  /* 功能色 - 警告 */
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-200: #fed7aa;
+  --color-warning-300: #fdba74;
+  --color-warning-400: #fb923c;
+  --color-warning-500: #f97316;
+  --color-warning-600: #ea580c;
+  --color-warning-700: #c2410c;
+  --color-warning-800: #9a3412;
+  --color-warning-900: #7c2d12;
+
+  /* 自訂陰影 */
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+/* 全域基礎樣式 */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,78 +80,34 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body {
+  @apply m-0 min-w-[320px] min-h-screen bg-neutral-50 text-neutral-800;
+}
+
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  @apply font-medium text-primary-600 no-underline transition-colors duration-200;
 }
 
 a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  @apply text-primary-700;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  @apply text-5xl leading-tight text-neutral-900;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+h2 {
+  @apply text-3xl leading-tight text-neutral-800;
 }
 
-button:hover {
-  border-color: #646cff;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.card {
-  padding: 2em;
+h3 {
+  @apply text-2xl leading-tight text-neutral-700;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: .5rem;
-  text-align: center;
+  @apply max-w-7xl mx-auto p-2 md:p-4;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
-@media (max-width: 768px) {
-  #app {
-    padding: .05rem;
-  }
+.card {
+  @apply p-8 bg-white rounded-xl shadow-soft;
 }

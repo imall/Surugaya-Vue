@@ -1,16 +1,41 @@
 <template>
-  <div class="add-wrapper">
-    <BaseButton class="add-button" variant="default" @click="showAdd = !showAdd" :title="showAdd ? '關閉' : '新增商品'">
+  <div class="absolute right-0 top-0 bottom-0 my-auto z-80">
+    <BaseButton 
+      class="w-12 h-9 p-0! text-xl font-semibold leading-none rounded-[10px] shadow-md transition-all duration-200 hover:shadow-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-sm" 
+      variant="default" 
+      @click="showAdd = !showAdd" 
+      :title="showAdd ? '關閉' : '新增商品'"
+    >
       +
     </BaseButton>
-    <div v-if="showAdd" class="add-box">
-      <input id="url" v-model="url" @keyup.enter="handleAdd" @keyup.esc="showAdd = false" type="text"
-        placeholder="貼上商品網址，Enter送出" class="add-input" />
-      <BaseButton class="add-submit" variant="primary" @click="handleAdd" :disabled="adding">
-        送出
-      </BaseButton>
-      <div class="add-msg" v-if="errorMessage">{{ errorMessage }}</div>
-    </div>
+    
+    <transition name="pop">
+      <div 
+        v-if="showAdd" 
+        class="add-box absolute top-0 right-[60px] bg-white border border-neutral-200 p-2.5 rounded-lg flex items-center gap-2 w-[360px] md:w-[360px] max-md:top-[53px]! max-md:right-0! max-md:w-[calc(100vw-22px)]!"
+      >
+        <input 
+          id="url" 
+          v-model="url" 
+          @keyup.enter="handleAdd" 
+          @keyup.esc="showAdd = false" 
+          type="text"
+          placeholder="貼上商品網址，Enter送出" 
+          class="flex-1 px-2 py-1.5 border border-neutral-300 rounded h-[30px] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+        />
+        <BaseButton 
+          class="text-sm! h-[30px]! px-3! py-1! font-semibold" 
+          variant="primary" 
+          @click="handleAdd" 
+          :disabled="adding"
+        >
+          送出
+        </BaseButton>
+        <div v-if="errorMessage" class="text-danger-600 text-xs ml-2">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -48,103 +73,40 @@ defineExpose({
 </script>
 
 <style scoped>
-.add-wrapper {
-  position: absolute;
-  inset: 0 0 0 auto;
-  margin: auto;
-  right: 0px;
-  z-index: 80;
-}
-
-.add-button {
-  width: 48px;
-  height: 36px;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(30, 30, 30, 0.06);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
-}
-
-.add-button:hover {
-  box-shadow: 0 8px 20px rgba(30, 30, 30, 0.12);
-}
-
-.add-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 2px 8px rgba(30, 30, 30, 0.1);
-}
-
+/* 彈出動畫 */
 .add-box {
-  position: absolute;
-  top: 0;
-  right: 60px;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 360px;
   transform-origin: bottom right;
-  animation: pop .12s ease;
 }
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: scale(.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.add-input {
-  flex: 1;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  height: 30px;
-}
-
-.add-submit {
-  font-size: 14px;
-  height: 30px;
-  padding: 8px 12px;
-  font-weight: 600;
-}
-
-.add-msg {
-  color: #d32f2f;
-  font-size: 12px;
-  margin-left: 8px;
-}
-
 
 @media (max-width: 768px) {
-  .add-wrapper {
-    top: 10px;
-  }
-
   .add-box {
-    position: absolute;
-    top: 53px;
-    right: 0;
-    background: #fff;
-    border: 1px solid #e6e6e6;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: calc(100vw - 22px);
     transform-origin: top right;
-    animation: pop .12s ease;
   }
+}
+
+/* Vue Transition 動畫 */
+.pop-enter-active,
+.pop-leave-active {
+  transition: all 0.12s ease;
+}
+
+.pop-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.pop-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pop-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
 }
 </style>

@@ -8,13 +8,6 @@
 </template>
 
 <style>
-/* Mobile-First 全域樣式 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   background: linear-gradient(to bottom right, rgb(240 249 255), rgb(255 255 255), rgb(250 245 255));
   overflow-x: hidden;

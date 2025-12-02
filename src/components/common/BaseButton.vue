@@ -1,14 +1,21 @@
 <template>
-  <button :class="['base-button', variant]" :disabled="disabled" :title="title" @click="handleClick">
+  <button 
+    :class="buttonClasses" 
+    :disabled="disabled" 
+    :title="title" 
+    @click="handleClick"
+  >
     <slot></slot>
   </button>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   variant: {
     type: String,
-    default: 'default', // default, primary, danger
+    default: 'default',
     validator: (value) => ['default', 'primary', 'danger'].includes(value)
   },
   disabled: {
@@ -26,66 +33,78 @@ const emit = defineEmits(['click'])
 const handleClick = () => {
   emit('click')
 }
+
+// 使用 Tailwind 類別，避免硬編碼樣式
+const buttonClasses = computed(() => {
+  // 基礎樣式 - 所有按鈕共用
+  const baseClasses = [
+    'rounded-lg',
+    'border',
+    'shadow-sm',
+    'outline-none',
+    'cursor-pointer',
+    'inline-flex',
+    'items-center',
+    'justify-center',
+    'transition-all',
+    'duration-200',
+    'font-medium',
+    'px-4',      // 默認水平內距
+    'py-2',      // 默認垂直內距
+  ]
+
+  // 變體樣式 - 使用語義化的 Tailwind 類別
+  const variantClasses = {
+    default: [
+      'bg-gradient-to-b',
+      'from-white',
+      'to-neutral-50',
+      'text-neutral-600',
+      'border-neutral-300',
+      'hover:from-neutral-50',
+      'hover:to-neutral-100',
+      'hover:border-neutral-400',
+      'hover:text-neutral-800',
+      'hover:shadow-md',
+    ],
+    primary: [
+      'bg-gradient-to-b',
+      'from-warning-500',
+      'to-warning-600',
+      'text-white',
+      'border-warning-600',
+      'shadow-[0_2px_8px_rgba(246,166,35,0.25)]',
+      'hover:from-warning-600',
+      'hover:to-warning-700',
+      'hover:shadow-[0_4px_14px_rgba(246,166,35,0.35)]',
+      'hover:-translate-y-0.5',
+    ],
+    danger: [
+      'bg-danger-600',
+      'text-white',
+      'border-danger-600',
+      'hover:bg-danger-700',
+      'hover:shadow-md',
+    ],
+  }
+
+  // 禁用狀態樣式
+  const disabledClasses = props.disabled
+    ? ['opacity-50', 'cursor-not-allowed', '!transform-none', '!shadow-none']
+    : []
+
+  // 合併所有樣式
+  return [
+    ...baseClasses,
+    ...variantClasses[props.variant],
+    ...disabledClasses
+  ].join(' ')
+})
 </script>
 
 <style scoped>
-.base-button {
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  outline: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-/* 預設樣式 */
-.base-button.default {
-  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
-  color: #666;
-}
-
-.base-button.default:hover:not(:disabled) {
-  background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
-  border-color: #ccc;
-  color: #333;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-
-/* 主要按鈕樣式 */
-.base-button.primary {
-  background: linear-gradient(180deg, #F6A623 0%, #E89619 100%);
-  color: #FFFFFF;
-  border: 1px solid #E89619;
-  box-shadow: 0 2px 8px rgba(246, 166, 35, 0.25);
-}
-
-.base-button.primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #E89619 0%, #D98710 100%);
-  box-shadow: 0 4px 14px rgba(246, 166, 35, 0.35);
-  transform: translateY(-1px);
-}
-
-/* 危險按鈕樣式 */
-.base-button.danger {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-}
-
-.base-button.danger:hover:not(:disabled) {
-  background-color: #b71c1c;
-}
-
-.base-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
+/* 
+  此組件完全使用 Tailwind 類別
+  無需額外 CSS
+*/
 </style>
