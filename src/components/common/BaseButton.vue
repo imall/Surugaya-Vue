@@ -1,10 +1,5 @@
 <template>
-  <button 
-    :class="buttonClasses" 
-    :disabled="disabled" 
-    :title="title" 
-    @click="handleClick"
-  >
+  <button :class="buttonClasses" :disabled="disabled" :title="title" @click="handleClick">
     <slot></slot>
   </button>
 </template>
@@ -50,7 +45,7 @@ const buttonClasses = computed(() => {
     'duration-200',
     'font-medium',
     'px-4',      // 默認水平內距
-    'py-2',      // 默認垂直內距
+    'py-1.5',      // 默認垂直內距
   ]
 
   // 變體樣式 - 使用語義化的 Tailwind 類別

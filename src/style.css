@@ -92,17 +92,6 @@ a:hover {
   @apply text-primary-700;
 }
 
-h1 {
-  @apply text-5xl leading-tight text-neutral-900;
-}
-
-h2 {
-  @apply text-3xl leading-tight text-neutral-800;
-}
-
-h3 {
-  @apply text-2xl leading-tight text-neutral-700;
-}
 
 #app {
   @apply max-w-7xl mx-auto p-2 md:p-4;
