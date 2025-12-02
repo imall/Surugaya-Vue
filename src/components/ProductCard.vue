@@ -68,6 +68,13 @@ const savingPurchase = ref(false)
 // 購買歷史列表彈窗狀態
 const showPurchaseHistoryModal = ref(false)
 
+// 編輯購買記錄彈窗狀態
+const showEditPurchaseModal = ref(false)
+const editingPurchase = ref(null)
+const editPurchaseDate = ref('')
+const editPurchaseNote = ref('')
+const savingEditPurchase = ref(false)
+
 // 快速分類選單
 const quickCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const quickSaving = ref(false)
@@ -337,21 +344,14 @@ const addPurchaseRecord = async () => {
 
     const result = await response.json()
     console.log('API 回傳的購買記錄資料:', result)
-    
-    // 通知父組件更新購買歷史
-    alert('購買記錄を追加しました')
-    closePurchaseModal()
-    
-    // 觸發更新，傳遞新的購買歷史資料
-    // API 應該回傳完整的 purchaseHistory 陣列
-    const newPurchaseHistory = result.purchaseHistory || (Array.isArray(result) ? result : [result])
-    console.log('傳遞給父組件的購買歷史:', newPurchaseHistory)
-    
-    emit('updated', { 
-      url: props.product.url,
-      purchaseHistory: newPurchaseHistory
-    })
-    
+
+    // 清空表單
+    purchaseDate.value = ''
+    purchaseNote.value = ''
+
+    // 重新取得完整的購買歷史
+    await refreshPurchaseHistory()
+
   } catch (err) {
     alert('購買記錄の追加中にエラーが発生しました: ' + err.message)
     console.error('Error adding purchase record:', err)
@@ -362,12 +362,153 @@ const addPurchaseRecord = async () => {
 
 // 打開購買歷史彈窗
 const openPurchaseHistoryModal = () => {
+  // 設定預設日期為今天
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  purchaseDate.value = `${year}-${month}-${day}`
+  purchaseNote.value = ''
   showPurchaseHistoryModal.value = true
 }
 
 // 關閉購買歷史彈窗
 const closePurchaseHistoryModal = () => {
   showPurchaseHistoryModal.value = false
+  purchaseDate.value = ''
+  purchaseNote.value = ''
+}
+
+// 打開編輯購買記錄彈窗
+const openEditPurchaseModal = (record) => {
+  editingPurchase.value = record
+  // 將日期轉換為 YYYY-MM-DD 格式
+  const date = new Date(record.date)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  editPurchaseDate.value = `${year}-${month}-${day}`
+  editPurchaseNote.value = record.note || ''
+  showEditPurchaseModal.value = true
+}
+
+// 關閉編輯購買記錄彈窗
+const closeEditPurchaseModal = () => {
+  showEditPurchaseModal.value = false
+  editingPurchase.value = null
+  editPurchaseDate.value = ''
+  editPurchaseNote.value = ''
+}
+
+// 更新購買記錄
+const updatePurchaseRecord = async () => {
+  if (!editPurchaseDate.value) {
+    alert('購買日期不能為空')
+    return
+  }
+
+  if (!editingPurchase.value || !editingPurchase.value.id) {
+    alert('無效的購買記錄')
+    return
+  }
+
+  savingEditPurchase.value = true
+  try {
+    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaPurchase/${editingPurchase.value.id}`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        date: editPurchaseDate.value,
+        note: editPurchaseNote.value || ''
+      })
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(text || '購買記錄の更新に失敗しました')
+    }
+
+    const result = await response.json()
+    console.log('更新後的購買記錄:', result)
+
+    closeEditPurchaseModal()
+
+    // 重新取得完整的購買歷史
+    await refreshPurchaseHistory()
+
+  } catch (err) {
+    alert('購買記錄の更新中にエラーが発生しました: ' + err.message)
+    console.error('Error updating purchase record:', err)
+  } finally {
+    savingEditPurchase.value = false
+  }
+}
+
+// 刪除購買記錄
+const deletePurchaseRecord = async (record) => {
+  if (!confirm('この購買記錄を削除してもよろしいですか？')) {
+    return
+  }
+
+  if (!record || !record.id) {
+    alert('無效的購買記錄')
+    return
+  }
+
+  try {
+    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaPurchase/${record.id}`, {
+      method: 'DELETE'
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(text || '購買記錄の削除に失敗しました')
+    }
+
+    // 重新取得完整的購買歷史
+    await refreshPurchaseHistory()
+
+  } catch (err) {
+    alert('購買記錄の削除中にエラーが発生しました: ' + err.message)
+    console.error('Error deleting purchase record:', err)
+  }
+}
+
+// 重新取得購買歷史
+const refreshPurchaseHistory = async () => {
+  try {
+    const response = await fetch(`https://surugaya.onrender.com/api/SurugayaPurchase/by-url?url=${encodeURIComponent(props.product.url)}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error('購買歷史の取得に失敗しました')
+    }
+
+    const result = await response.json()
+    console.log('重新取得的購買歷史:', result)
+
+    // 更新購買歷史
+    const newPurchaseHistory = Array.isArray(result) ? result : (result.purchaseHistory || [])
+    
+    emit('updated', {
+      url: props.product.url,
+      purchaseHistory: newPurchaseHistory
+    })
+
+  } catch (err) {
+    console.error('Error refreshing purchase history:', err)
+    // 如果取得失敗，設為空陣列
+    emit('updated', {
+      url: props.product.url,
+      purchaseHistory: []
+    })
+  }
 }
 </script>
 
@@ -375,10 +516,9 @@ const closePurchaseHistoryModal = () => {
   <div class="product-card" :class="{ selected: isSelected, purchased: hasPurchaseHistory }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
-    <!-- 購買歷史徽章 (右上角) -->
-    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回 - クリックして詳細を表示`" @click.stop="openPurchaseHistoryModal">
+    <!-- 購買歷史徽章 (右上角) - 不可點擊 -->
+    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回`">
       ✓ 購入済
-      <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
     </div>
 
     <!-- purpose category dropdown (top-left) -->
@@ -440,7 +580,8 @@ const closePurchaseHistoryModal = () => {
 
         <!-- 購買記錄按鈕 -->
         <div class="purchase-action">
-          <button class="btn-mark-purchased" @click.stop="openPurchaseModal" :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回` : '購入済にする'">
+          <button class="btn-mark-purchased" @click.stop="openPurchaseHistoryModal"
+            :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回` : '購入済にする'">
             <span v-if="hasPurchaseHistory">📝 購買記錄 ({{ purchaseCount }})</span>
             <span v-else>✓ 購入済にする</span>
           </button>
@@ -511,19 +652,80 @@ const closePurchaseHistoryModal = () => {
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>購買歷史</h3>
 
-        <div v-if="!props.product.purchaseHistory || props.product.purchaseHistory.length === 0" class="no-purchase-history">
-          尚未新增購買記錄
+        <!-- 新增購買記錄區域 -->
+        <div class="add-purchase-section">
+          <h4 class="section-title">新增購買記錄</h4>
+          <div class="add-purchase-form">
+            <div class="form-row">
+              <label class="form-label">購買日期</label>
+              <input type="date" v-model="purchaseDate" class="date-input" />
+            </div>
+            <div class="form-row">
+              <label class="form-label">備註</label>
+              <input v-model="purchaseNote" class="note-input" placeholder="備註（可選）" />
+            </div>
+            <button class="btn-add-purchase" @click="addPurchaseRecord" :disabled="savingPurchase">
+              ➕ 新增記錄
+            </button>
+          </div>
         </div>
 
-        <div v-else class="purchase-history-list">
-          <div v-for="(record, index) in props.product.purchaseHistory" :key="`${product.id}-purchase-${index}`" class="purchase-history-item">
-            <div class="purchase-date">{{ formatPurchaseDate(record.date) }}</div>
-            <div class="purchase-note" v-if="record.note">{{ record.note }}</div>
+        <!-- 購買歷史列表 -->
+        <div class="history-section">
+          <h4 class="section-title">歷史記錄</h4>
+          <div v-if="!props.product.purchaseHistory || props.product.purchaseHistory.length === 0"
+            class="no-purchase-history">
+            尚未新增購買記錄
+          </div>
+
+          <div v-else class="purchase-history-list">
+            <div v-for="(record, index) in props.product.purchaseHistory" :key="`${product.id}-purchase-${index}`"
+              class="purchase-history-item">
+              <div class="purchase-info">
+                <div class="purchase-date">{{ formatPurchaseDate(record.date) }}</div>
+                <div class="purchase-note" v-if="record.note">{{ record.note }}</div>
+                <div class="purchase-note empty-note" v-else>備註なし</div>
+              </div>
+              <div class="purchase-actions">
+                <button class="btn-edit-purchase" @click="openEditPurchaseModal(record)" title="編輯">
+                  ✏️
+                </button>
+                <button class="btn-delete-purchase" @click="deletePurchaseRecord(record)" title="刪除">
+                  🗑️
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
           <button class="btn-cancel" @click="closePurchaseHistoryModal">關閉</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 編輯購買記錄彈窗 -->
+    <div v-if="showEditPurchaseModal" class="modal-overlay" @click.self="closeEditPurchaseModal">
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <h3>編輯購買記錄</h3>
+
+        <div class="modal-row field-with-action">
+          <label class="small-label">購買日期</label>
+          <div class="field-action-row">
+            <input type="date" v-model="editPurchaseDate" class="date-input" />
+          </div>
+        </div>
+
+        <div class="modal-row field-with-action">
+          <label class="small-label">備註</label>
+          <div class="field-action-row">
+            <input v-model="editPurchaseNote" class="note-input" placeholder="備註（可選）" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-save" @click="updatePurchaseRecord" :disabled="savingEditPurchase">更新購買記錄</button>
+          <button class="btn-cancel" @click="closeEditPurchaseModal" :disabled="savingEditPurchase">取消</button>
         </div>
       </div>
     </div>
@@ -577,18 +779,7 @@ const closePurchaseHistoryModal = () => {
   display: flex;
   align-items: center;
   gap: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.purchase-badge:hover {
-  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
-  transform: scale(1.05);
-  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
-}
-
-.purchase-badge:active {
-  transform: scale(0.98);
+  pointer-events: none;
 }
 
 .purchase-badge .count {
@@ -1120,17 +1311,25 @@ const closePurchaseHistoryModal = () => {
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
 .purchase-history-item:hover {
   background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
-  transform: translateX(2px);
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
 }
 
 .purchase-history-item:last-child {
   margin-bottom: 0;
+}
+
+.purchase-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .purchase-date {
@@ -1159,6 +1358,47 @@ const closePurchaseHistoryModal = () => {
   white-space: nowrap;
 }
 
+.purchase-note.empty-note {
+  color: #999;
+  font-style: italic;
+}
+
+.purchase-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-edit-purchase,
+.btn-delete-purchase {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit-purchase:hover {
+  background: rgba(33, 150, 243, 0.1);
+  transform: scale(1.1);
+}
+
+.btn-delete-purchase:hover {
+  background: rgba(244, 67, 54, 0.1);
+  transform: scale(1.1);
+}
+
+.btn-edit-purchase:active,
+.btn-delete-purchase:active {
+  transform: scale(0.95);
+}
+
 .no-purchase-history {
   text-align: center;
   padding: 40px 20px;
@@ -1173,4 +1413,68 @@ const closePurchaseHistoryModal = () => {
   margin-bottom: 10px;
   opacity: 0.5;
 }
+
+/* 購買歷史彈窗樣式 */
+.add-purchase-section {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #C8E6C9;
+}
+
+.history-section {
+  margin-top: 20px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2E7D32;
+  margin: 0 0 12px 0;
+}
+
+.add-purchase-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-label {
+  font-size: 13px;
+  color: #555;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.btn-add-purchase {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  border: 1px solid #4CAF50;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-add-purchase:hover:not(:disabled) {
+  background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.btn-add-purchase:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 </style>
