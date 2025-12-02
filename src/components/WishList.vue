@@ -527,41 +527,41 @@ onUnmounted(() => {
     <div class="bg-white rounded-xl shadow-sm mb-5 p-4">
       <div class="flex gap-2.5 flex-wrap">
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
           selectedTab === null
-            ? 'bg-sky-500 text-white'
+            ? 'bg-blue-400 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(null)">
           全部 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
           selectedTab === 0
-            ? 'bg-sky-500 text-white'
+            ? 'bg-blue-400 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(0)">
           未分類 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
           selectedTab === 1
-            ? 'bg-sky-500 text-white'
+            ? 'bg-blue-400 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(1)">
           購買 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
           selectedTab === 2
-            ? 'bg-sky-500 text-white'
+            ? 'bg-blue-400 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(2)">
           考慮 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
           selectedTab === 3
-            ? 'bg-sky-500 text-white'
+            ? 'bg-blue-400 text-white'
             : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(3)">
           購物車 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
