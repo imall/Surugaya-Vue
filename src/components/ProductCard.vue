@@ -65,6 +65,9 @@ const purchaseDate = ref('')
 const purchaseNote = ref('')
 const savingPurchase = ref(false)
 
+// 購買歷史列表彈窗狀態
+const showPurchaseHistoryModal = ref(false)
+
 // 快速分類選單
 const quickCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const quickSaving = ref(false)
@@ -351,6 +354,16 @@ const addPurchaseRecord = async () => {
     savingPurchase.value = false
   }
 }
+
+// 打開購買歷史彈窗
+const openPurchaseHistoryModal = () => {
+  showPurchaseHistoryModal.value = true
+}
+
+// 關閉購買歷史彈窗
+const closePurchaseHistoryModal = () => {
+  showPurchaseHistoryModal.value = false
+}
 </script>
 
 <template>
@@ -358,7 +371,7 @@ const addPurchaseRecord = async () => {
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
     <!-- 購買歷史徽章 (右上角) -->
-    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回`">
+    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回 - クリックして詳細を表示`" @click.stop="openPurchaseHistoryModal">
       ✓ 購入済
       <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
     </div>
@@ -487,6 +500,28 @@ const addPurchaseRecord = async () => {
         </div>
       </div>
     </div>
+
+    <!-- 購買歷史列表彈窗 -->
+    <div v-if="showPurchaseHistoryModal" class="modal-overlay" @click.self="closePurchaseHistoryModal">
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <h3>購買歷史</h3>
+
+        <div v-if="!props.product.purchaseHistory || props.product.purchaseHistory.length === 0" class="no-purchase-history">
+          尚未新增購買記錄
+        </div>
+
+        <div v-else class="purchase-history-list">
+          <div v-for="(record, index) in props.product.purchaseHistory" :key="`${product.id}-purchase-${index}`" class="purchase-history-item">
+            <div class="purchase-date">{{ formatPurchaseDate(record.date) }}</div>
+            <div class="purchase-note" v-if="record.note">{{ record.note }}</div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" @click="closePurchaseHistoryModal">關閉</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -537,9 +572,18 @@ const addPurchaseRecord = async () => {
   display: flex;
   align-items: center;
   gap: 4px;
-  cursor: default;
+  cursor: pointer;
   transition: all 0.2s ease;
-  pointer-events: none;
+}
+
+.purchase-badge:hover {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
+
+.purchase-badge:active {
+  transform: scale(0.98);
 }
 
 .purchase-badge .count {
@@ -1054,14 +1098,74 @@ const addPurchaseRecord = async () => {
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
-  .product-content {
-    flex-direction: column;
-  }
+/* 購買歷史列表樣式 */
+.purchase-history-list {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 15px 0;
+}
 
-  .price-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.purchase-history-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #F1F8F4 0%, #FAFFFE 100%);
+  border-left: 3px solid #4CAF50;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.purchase-history-item:hover {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+}
+
+.purchase-history-item:last-child {
+  margin-bottom: 0;
+}
+
+.purchase-date {
+  font-weight: bold;
+  color: #4CAF50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.purchase-date::before {
+  content: '📅';
+  font-size: 14px;
+}
+
+.purchase-note {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-purchase-history {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.no-purchase-history::before {
+  content: '📦';
+  display: block;
+  font-size: 48px;
+  margin-bottom: 10px;
+  opacity: 0.5;
 }
 </style>
