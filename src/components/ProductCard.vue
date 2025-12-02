@@ -135,7 +135,6 @@ const quickUpdateCategory = async () => {
     })
   } catch (err) {
     alert('更新用途時發生錯誤: ' + parseErrorMessage(err))
-    console.error(err)
     // 恢復原值
     quickCategoryId.value = props.product.purposeCategoryId ?? 0
   } finally {
@@ -208,7 +207,6 @@ const savePurposeOnly = async () => {
     showEditModal.value = false
   } catch (err) {
     alert('更新用途時發生錯誤: ' + parseErrorMessage(err))
-    console.error(err)
   } finally {
     saving.value = false
   }
@@ -241,7 +239,6 @@ const saveSeriesOnly = async () => {
     showEditModal.value = false
   } catch (err) {
     alert('更新作品名時發生錯誤: ' + parseErrorMessage(err))
-    console.error(err)
   } finally {
     saving.value = false
   }
@@ -291,7 +288,6 @@ const saveAll = async () => {
     showEditModal.value = false
   } catch (err) {
     alert('全部儲存時發生錯誤: ' + parseErrorMessage(err))
-    console.error(err)
   } finally {
     saving.value = false
   }
@@ -343,7 +339,6 @@ const addPurchaseRecord = async () => {
     }
 
     const result = await response.json()
-    console.log('API 回傳的購買記錄資料:', result)
 
     // 清空表單
     purchaseDate.value = ''
@@ -354,7 +349,6 @@ const addPurchaseRecord = async () => {
 
   } catch (err) {
     alert('購買記錄の追加中にエラーが発生しました: ' + err.message)
-    console.error('Error adding purchase record:', err)
   } finally {
     savingPurchase.value = false
   }
@@ -432,7 +426,6 @@ const updatePurchaseRecord = async () => {
     }
 
     const result = await response.json()
-    console.log('更新後的購買記錄:', result)
 
     closeEditPurchaseModal()
 
@@ -441,7 +434,6 @@ const updatePurchaseRecord = async () => {
 
   } catch (err) {
     alert('購買記錄の更新中にエラーが発生しました: ' + err.message)
-    console.error('Error updating purchase record:', err)
   } finally {
     savingEditPurchase.value = false
   }
@@ -473,7 +465,6 @@ const deletePurchaseRecord = async (record) => {
 
   } catch (err) {
     alert('購買記錄の削除中にエラーが発生しました: ' + err.message)
-    console.error('Error deleting purchase record:', err)
   }
 }
 
@@ -491,7 +482,6 @@ const refreshPurchaseHistory = async () => {
     }
 
     const result = await response.json()
-    console.log('重新取得的購買歷史:', result)
 
     // 更新購買歷史
     const newPurchaseHistory = Array.isArray(result) ? result : (result.purchaseHistory || [])
@@ -502,8 +492,6 @@ const refreshPurchaseHistory = async () => {
     })
 
   } catch (err) {
-    console.error('Error refreshing purchase history:', err)
-    // 如果取得失敗，設為空陣列
     emit('updated', {
       url: props.product.url,
       purchaseHistory: []
@@ -514,7 +502,6 @@ const refreshPurchaseHistory = async () => {
 
 <template>
   <div class="product-card" :class="{ selected: isSelected, purchased: hasPurchaseHistory }">
-    <!-- purpose category dropdown (top-left) -->
     <div class="card-purpose-badge">
       <select v-model="quickCategoryId" @change="quickUpdateCategory" class="quick-category-select"
         :disabled="quickSaving" :id="`category-select-${product.id}`" :name="`category-${product.id}`"
@@ -526,7 +513,6 @@ const refreshPurchaseHistory = async () => {
     </div>
 
 
-    <!-- 購買歷史徽章 (右上角) - 可點擊 -->
     <div class="purchase-badge" :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
       :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
       @click.stop="openPurchaseHistoryModal">
@@ -539,7 +525,6 @@ const refreshPurchaseHistory = async () => {
       <div class="product-image" @click="handleToggleSelect">
         <img :src="product.imageUrl" :alt="product.title" />
         <div v-if="isSelected" class="selected-overlay"></div>
-        <!-- 實體店家標記 -->
         <div v-if="isPhysicalStore" class="store-badge" title="実店舗">🏪</div>
 
       </div>
@@ -585,7 +570,6 @@ const refreshPurchaseHistory = async () => {
       </div>
     </div>
 
-    <!-- Modal -->
     <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>編輯項目</h3>
@@ -618,7 +602,6 @@ const refreshPurchaseHistory = async () => {
       </div>
     </div>
 
-    <!-- 購買記錄彈窗 -->
     <div v-if="showPurchaseModal" class="modal-overlay" @click.self="closePurchaseModal">
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>新增購買記錄</h3>
@@ -644,12 +627,10 @@ const refreshPurchaseHistory = async () => {
       </div>
     </div>
 
-    <!-- 購買歷史列表彈窗 -->
     <div v-if="showPurchaseHistoryModal" class="modal-overlay" @click.self="closePurchaseHistoryModal">
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>購買歷史</h3>
 
-        <!-- 新增購買記錄區域 -->
         <div class="add-purchase-section">
           <h4 class="section-title">新增購買記錄</h4>
           <div class="add-purchase-form">
@@ -667,7 +648,6 @@ const refreshPurchaseHistory = async () => {
           </div>
         </div>
 
-        <!-- 購買歷史列表 -->
         <div class="history-section">
           <h4 class="section-title">歷史記錄</h4>
           <div v-if="!props.product.purchaseHistory || props.product.purchaseHistory.length === 0"
@@ -701,7 +681,6 @@ const refreshPurchaseHistory = async () => {
       </div>
     </div>
 
-    <!-- 編輯購買記錄彈窗 -->
     <div v-if="showEditPurchaseModal" class="modal-overlay" @click.self="closeEditPurchaseModal">
       <div class="modal-box" role="dialog" aria-modal="true">
         <h3>編輯購買記錄</h3>
@@ -779,7 +758,6 @@ const refreshPurchaseHistory = async () => {
 .purchase-badge.has-purchase:hover {
   background: rgba(129, 199, 132);
   border-color: rgba(129, 199, 132, 0.5);
-  transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(76, 175, 80, 0.18);
 }
 
@@ -792,7 +770,7 @@ const refreshPurchaseHistory = async () => {
 }
 
 .purchase-badge.no-purchase:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: rgb(244, 244, 244);
   color: #616161;
   box-shadow: 0 2px 6px rgba(76, 175, 80, 0.12);
 }
@@ -952,7 +930,7 @@ const refreshPurchaseHistory = async () => {
   box-shadow: none;
 }
 
-.btn-purpose,.btn-series {
+.btn-purpose,btn-series {
   background: linear-gradient(180deg, #e6f7ff 0%, #d0f1ff 100%);
   color: #07516a;
   border: 1px solid #c6eaf6;
@@ -1076,6 +1054,7 @@ const refreshPurchaseHistory = async () => {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: auto;
 }
 
 .btn-cancel:hover:not(:disabled) {

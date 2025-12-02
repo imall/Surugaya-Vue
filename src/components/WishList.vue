@@ -130,7 +130,6 @@ const CACHE_DURATION = 15 * 60 * 1000 // 15 分鐘（毫秒）
 
 const clearCache = () => {
   localStorage.removeItem(CACHE_KEY)
-  console.log('快取已清除')
 }
 
 const handleRefresh = async () => {
@@ -171,7 +170,6 @@ const handleAddUrl = async (url) => {
     await fetchProducts()
   } catch (err) {
     addError.value = err.message || String(err)
-    console.error('Error adding URL:', err)
   } finally {
     adding.value = false
   }
@@ -266,21 +264,15 @@ const fetchProducts = async () => {
     // 檢查 localStorage 快取
     const cachedData = localStorage.getItem(CACHE_KEY)
     if (cachedData) {
-      try {
-        const { data, timestamp } = JSON.parse(cachedData)
-        const now = Date.now()
 
-        // 檢查快取是否在有效期內
-        if (now - timestamp < CACHE_DURATION) {
-          console.log('使用快取資料')
-          products.value = data
-          loading.value = false
-          return
-        } else {
-          console.log('快取已過期，重新載入')
-        }
-      } catch (e) {
-        console.error('快取資料解析失敗:', e)
+      const { data, timestamp } = JSON.parse(cachedData)
+      const now = Date.now()
+
+      // 檢查快取是否在有效期內
+      if (now - timestamp < CACHE_DURATION) {
+        products.value = data
+        loading.value = false
+        return
       }
     }
 
@@ -300,10 +292,7 @@ const fetchProducts = async () => {
         timestamp: Date.now()
       }
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObject))
-      console.log('資料已快取')
     } catch (e) {
-      console.error('無法儲存快取:', e)
-      // 如果 localStorage 滿了，清除舊快取
       if (e.name === 'QuotaExceededError') {
         localStorage.removeItem(CACHE_KEY)
       }
@@ -313,7 +302,6 @@ const fetchProducts = async () => {
     products.value = data
   } catch (err) {
     error.value = err.message
-    console.error('Error fetching products:', err)
   } finally {
     loading.value = false
   }
@@ -352,7 +340,6 @@ const deleteProduct = async (url) => {
     clearCache() // 清除快取
   } catch (err) {
     alert('エラーが発生しました: ' + err.message)
-    console.error('Error deleting product:', err)
   }
 }
 
@@ -375,7 +362,6 @@ const deleteSelected = async () => {
     clearCache() // 清除快取
   } catch (err) {
     alert('削除中にエラーが発生しました: ' + err.message)
-    console.error('Error deleting products:', err)
   }
 }
 
@@ -461,22 +447,18 @@ const addToCart = async () => {
     }
   } catch (err) {
     alert('カートへの追加中にエラーが発生しました: ' + err.message)
-    console.error('Error adding to cart:', err)
   }
 }
 
 const handleUpdated = (payload) => {
-  console.log('handleUpdated 收到的 payload:', payload)
 
   const idx = products.value.findIndex(p => {
     return p.url === payload.url
   })
   if (idx === -1) {
-    console.warn('找不到對應的商品:', payload.url)
     return
   }
 
-  console.log('更新前的商品資料:', products.value[idx])
 
   // 使用 Object.assign 或創建新物件來確保響應式更新
   const updatedProduct = { ...products.value[idx] }
@@ -489,7 +471,6 @@ const handleUpdated = (payload) => {
   // 替換整個物件以觸發響應式更新
   products.value[idx] = updatedProduct
 
-  console.log('更新後的商品資料:', products.value[idx])
 
   // 清除快取，因為資料已更新
   clearCache()
@@ -527,7 +508,6 @@ onUnmounted(() => {
 
 <template>
   <div class="wishlist-container">
-    <!-- 回到頂部按鈕 (僅手機版顯示) -->
     <button v-show="showScrollButton" class="scroll-to-top-btn" @click="scrollToTop" aria-label="回到頂部">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -535,7 +515,6 @@ onUnmounted(() => {
       </svg>
     </button>
 
-    <!-- Header 主標題區 -->
     <div class="bg-white rounded-xl shadow-sm mb-5 p-5">
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-3xl font-semibold text-gray-800 flex items-center gap-3 m-0">
@@ -545,7 +524,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 標籤導航 -->
     <div class="bg-white rounded-xl shadow-sm mb-5 p-4">
       <div class="flex gap-2.5 flex-wrap">
         <button :class="[
@@ -596,9 +574,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 控制區 -->
     <div class="bg-white rounded-xl shadow-sm mb-5 p-5 relative overflow-visible">
-      <!-- 折疊按鈕 (手機版顯示) -->
       <button @click="toggleFilters"
         class="md:hidden w-full flex items-center justify-between text-sm font-medium text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
         <span>篩選與排序</span>
@@ -608,12 +584,10 @@ onUnmounted(() => {
         </svg>
       </button>
 
-      <!-- 可折疊的篩選區 -->
       <div :class="[
         'transition-all duration-300 ease-in-out pt-3',
         showFilters ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden max-md:hidden'
       ]">
-        <!-- 排序和搜尋 -->
         <div class="flex gap-5 mb-4 flex-wrap max-md:flex-col">
           <div class="flex items-center gap-3 flex-1 min-w-[200px] max-md:w-full max-md:gap-2.5">
             <label for="sort-select" class="text-sm font-medium text-gray-600 whitespace-nowrap w-18">並び替え:</label>
@@ -633,7 +607,6 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- 篩選選項 -->
         <div class="flex gap-5 p-4 bg-gray-50 rounded-lg  flex-wrap">
           <div class="flex items-center flex-wrap">
             <label
@@ -670,12 +643,10 @@ onUnmounted(() => {
         <div :class="[
           'flex items-center rounded-lg transition-all duration-300 pt-4'
         ]">
-          <!-- 當沒有選中商品時，顯示新增商品功能 -->
           <div v-if="selectedProducts.length === 0" class="w-full">
             <AddUrlButton ref="addUrlRef" :adding="adding" :error-message="addError" @add="handleAddUrl" />
           </div>
 
-          <!-- 當有選中商品時，顯示批次操作功能 -->
           <div v-else class="flex items-center gap-4 w-full">
             <span class="text-sm font-semibold text-sky-600 whitespace-nowrap flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -685,11 +656,9 @@ onUnmounted(() => {
               </svg>
               {{ selectedProducts.length }}個選択中
             </span>
-            <!-- 購物車標籤時顯示加入購物車按鈕 -->
             <BaseButton v-if="selectedTab === 3" variant="primary" class="h-10 whitespace-nowrap" @click="addToCart">
               カートに入れる
             </BaseButton>
-            <!-- 其他標籤時顯示刪除按鈕 -->
             <BaseButton v-else variant="danger" class="h-10 whitespace-nowrap max-md:text-xs max-md:px-2"
               @click="deleteSelected">
               <span class="max-md:hidden">選択した商品を削除</span>
