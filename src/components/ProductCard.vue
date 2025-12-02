@@ -731,7 +731,7 @@ const refreshPurchaseHistory = async () => {
 .product-card {
   display: flex;
   gap: 8px;
-  padding: 12px;
+  padding: 40px 12px 12px;
   border: 1px solid #e6eef6;
   background-color: #fcfeff;
   border-radius: 6px;
