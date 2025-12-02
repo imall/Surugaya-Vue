@@ -516,9 +516,14 @@ const refreshPurchaseHistory = async () => {
   <div class="product-card" :class="{ selected: isSelected, purchased: hasPurchaseHistory }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
 
-    <!-- 購買歷史徽章 (右上角) - 不可點擊 -->
-    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回`">
-      ✓ 購入済
+    <!-- 購買歷史徽章 (右上角) - 可點擊 -->
+    <div class="purchase-badge" 
+         :class="{ 'has-purchase': hasPurchaseHistory, 'no-purchase': !hasPurchaseHistory }"
+         :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回 - クリックして詳細を表示` : '購入済にする - クリックして記録を追加'"
+         @click.stop="openPurchaseHistoryModal">
+      <span v-if="hasPurchaseHistory">✓ 購入済</span>
+      <span v-else>購入済</span>
+      <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
     </div>
 
     <!-- purpose category dropdown (top-left) -->
@@ -576,15 +581,6 @@ const refreshPurchaseHistory = async () => {
 
         <div class="date-info">
           リストに追加された日: {{ formatDate(product.lastUpdated) }}
-        </div>
-
-        <!-- 購買記錄按鈕 -->
-        <div class="purchase-action">
-          <button class="btn-mark-purchased" @click.stop="openPurchaseHistoryModal"
-            :title="hasPurchaseHistory ? `購入済 ${purchaseCount}回` : '購入済にする'">
-            <span v-if="hasPurchaseHistory">📝 購買記錄 ({{ purchaseCount }})</span>
-            <span v-else>✓ 購入済にする</span>
-          </button>
         </div>
 
       </div>
@@ -768,18 +764,47 @@ const refreshPurchaseHistory = async () => {
   position: absolute;
   top: 6px;
   right: 30px;
-  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
-  color: white;
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: bold;
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
   z-index: 11;
   display: flex;
   align-items: center;
   gap: 4px;
-  pointer-events: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 有購買記錄的徽章 - 綠色 */
+.purchase-badge.has-purchase {
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.purchase-badge.has-purchase:hover {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
+
+/* 無購買記錄的徽章 - 淺灰色 */
+.purchase-badge.no-purchase {
+  background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%);
+  color: #757575;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-badge.no-purchase:hover {
+  background: linear-gradient(135deg, #BDBDBD 0%, #9E9E9E 100%);
+  color: #616161;
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.purchase-badge:active {
+  transform: scale(0.98);
 }
 
 .purchase-badge .count {
@@ -1223,41 +1248,6 @@ const refreshPurchaseHistory = async () => {
 .date-info {
   font-size: 12px;
   color: #666;
-}
-
-/* 購買記錄按鈕 */
-.purchase-action {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  width: 100%;
-}
-
-.btn-mark-purchased {
-  flex: 1;
-  padding: 6px 12px;
-  background: linear-gradient(180deg, #66BB6A 0%, #4CAF50 100%);
-  color: white;
-  border: 1px solid #4CAF50;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-weight: 500;
-}
-
-.btn-mark-purchased:hover {
-  background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
-}
-
-.btn-mark-purchased:active {
-  transform: translateY(0);
 }
 
 /* 購買記錄彈窗的輸入框 */
