@@ -24,6 +24,21 @@ const isPhysicalStore = computed(() => {
   return props.product.url && props.product.url.includes('tenpo_cd')
 })
 
+// 購買歷史相關
+const hasPurchaseHistory = computed(() => {
+  return props.product.purchaseHistory && props.product.purchaseHistory.length > 0
+})
+
+const purchaseCount = computed(() => {
+  return props.product.purchaseHistory?.length || 0
+})
+
+const formatPurchaseDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' })
+}
+
 const handleToggleSelect = () => {
   // use full URL (lowercase `url`) as the key for selection to avoid ambiguity across marketplaces
   emit('toggle-select', props.product.url)
@@ -270,8 +285,14 @@ const saveAll = async () => {
 </script>
 
 <template>
-  <div class="product-card" :class="{ selected: isSelected }">
+  <div class="product-card" :class="{ selected: isSelected, purchased: hasPurchaseHistory }">
     <button @click="handleDelete" class="btn-delete" title="削除">×</button>
+
+    <!-- 購買歷史徽章 (右上角) -->
+    <div v-if="hasPurchaseHistory" class="purchase-badge" :title="`購入済 ${purchaseCount}回`">
+      ✓ 購入済
+      <span v-if="purchaseCount > 1" class="count">×{{ purchaseCount }}</span>
+    </div>
 
     <!-- purpose category dropdown (top-left) -->
     <div class="card-purpose-badge">
@@ -386,6 +407,46 @@ const saveAll = async () => {
   box-shadow: 0 4px 14px rgba(127, 179, 213, 0.12);
 }
 
+/* 已購買商品的樣式 */
+.product-card.purchased {
+  border-color: #81C784;
+  background: linear-gradient(135deg, #F1F8F4 0%, #FAFFFE 100%);
+}
+
+.product-card.purchased.selected {
+  border-color: #66BB6A;
+  box-shadow: 0 4px 14px rgba(102, 187, 106, 0.2);
+}
+
+/* 購買徽章 */
+.purchase-badge {
+  position: absolute;
+  top: 6px;
+  right: 30px;
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.purchase-badge .count {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+/* 其他樣式保持不變 */
 .btn-delete {
   position: absolute;
   top: 6px;

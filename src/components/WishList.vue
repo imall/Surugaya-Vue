@@ -19,6 +19,8 @@ const selectedProducts = ref([])
 const filterOnSale = ref(false)
 const filterOutOfStock = ref(false)
 const filterHidePhysicalStore = ref(false)
+const filterPurchasedOnly = ref(false)
+const filterHidePurchased = ref(false)
 
 const selectedTab = computed(() => {
   return getCategoryIdFromRoute(route.params.category)
@@ -214,6 +216,15 @@ const filteredProducts = computed(() => {
   // 去除實體店家篩選
   if (filterHidePhysicalStore.value) {
     arr = arr.filter(p => !p.url || !p.url.includes('tenpo_cd'))
+  }
+
+  // 購買歷史篩選
+  if (filterPurchasedOnly.value) {
+    arr = arr.filter(p => p.purchaseHistory && p.purchaseHistory.length > 0)
+  }
+
+  if (filterHidePurchased.value) {
+    arr = arr.filter(p => !p.purchaseHistory || p.purchaseHistory.length === 0)
   }
 
   if (!filterOnSale.value && !filterOutOfStock.value) return arr
@@ -555,6 +566,14 @@ onUnmounted(() => {
                 <input type="checkbox" v-model="filterHidePhysicalStore" />
                 <span>隱藏實體店</span>
               </label>
+              <label class="filter-label filter-purchased">
+                <input type="checkbox" v-model="filterPurchasedOnly" />
+                <span>✅ 只顯示已購買</span>
+              </label>
+              <label class="filter-label filter-purchased">
+                <input type="checkbox" v-model="filterHidePurchased" />
+                <span>🚫 隱藏已購買</span>
+              </label>
             </div>
           </div>
           <div class="toolbar" :class="{ 'toolbar-empty': selectedProducts.length === 0 }">
@@ -821,6 +840,12 @@ onUnmounted(() => {
   writing-mode: horizontal-tb;
   /* force horizontal text */
   font-size: 14px;
+}
+
+.filter-label.filter-purchased {
+  border-left: 2px solid #4CAF50;
+  padding-left: 12px;
+  margin-left: 8px;
 }
 
 .tabs {

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>購買歷史標記 - UI 設計示範</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "メイリオ", Meiryo, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    h2 {
+      color: #666;
+      margin: 30px 0 15px;
+      font-size: 18px;
+      border-bottom: 2px solid #0066cc;
+      padding-bottom: 8px;
+    }
+
+    .description {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .description h3 {
+      color: #4CAF50;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .description ul {
+      margin-left: 20px;
+    }
+
+    .description li {
+      margin: 5px 0;
+      color: #666;
+    }
+
+    .filters-demo {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .filter-label input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .product-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* 已購買商品的邊框 */
+    .product-card.purchased {
+      border-color: #81C784;
+      background: #F1F8F4;
+    }
+
+    /* 購買徽章 */
+    .purchase-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .purchase-badge:hover {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+      transform: scale(1.05);
+    }
+
+    .purchase-badge .count {
+      background: rgba(255, 255, 255, 0.3);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 10px;
+    }
+
+    .product-image {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      overflow: hidden;
+      background: #f9f9f9;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 12px;
+    }
+
+    .product-title {
+      display: block;
+      font-size: 14px;
+      color: #333;
+      text-decoration: none;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      height: 2.8em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .product-title:hover {
+      color: #0066cc;
+    }
+
+    .product-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #d32f2f;
+      margin-bottom: 10px;
+    }
+
+    /* 購買標記按鈕 */
+    .purchase-action {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-mark-purchased {
+      flex: 1;
+      padding: 6px 12px;
+      background: linear-gradient(180deg, #66BB6A 0%, #4CAF50 100%);
+      color: white;
+      border: 1px solid #4CAF50;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-mark-purchased:hover {
+      background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-mark-purchased.marked {
+      background: linear-gradient(180deg, #E0E0E0 0%, #BDBDBD 100%);
+      border-color: #BDBDBD;
+      color: #666;
+    }
+
+    .btn-mark-purchased.marked:hover {
+      background: linear-gradient(180deg, #BDBDBD 0%, #9E9E9E 100%);
+    }
+
+    /* 購買歷史彈窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .purchase-history-list {
+      list-style: none;
+    }
+
+    .purchase-history-item {
+      padding: 15px;
+      border-left: 3px solid #4CAF50;
+      background: #F1F8F4;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
+
+    .purchase-date {
+      font-weight: bold;
+      color: #4CAF50;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .purchase-note {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .add-purchase-form {
+      border-top: 1px solid #e0e0e0;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #666;
+      font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 10px 20px;
+      background: linear-gradient(180deg, #F6A623 0%, #E89619 100%);
+      color: white;
+      border: 1px solid #E89619;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(180deg, #E89619 0%, #D98710 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(246, 166, 35, 0.3);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 10px 20px;
+      background: #f5f5f5;
+      color: #666;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 30px;
+      color: #999;
+    }
+
+    .feature-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .feature-box h3 {
+      color: #0066cc;
+      margin-bottom: 15px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feature-item {
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 3px solid #0066cc;
+    }
+
+    .code-block {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+
+    .code-block .key {
+      color: #e06c75;
+    }
+
+    .code-block .string {
+      color: #98c379;
+    }
+
+    .code-block .number {
+      color: #d19a66;
+    }
+
+    .code-block .comment {
+      color: #5c6370;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 駿河屋願望清單 - 購買歷史標記 UI 設計示範</h1>
+
+    <div class="description">
+      <h3>✨ 設計概念</h3>
+      <ul>
+        <li>✅ 已購買商品顯示<strong>淡綠色徽章</strong>和<strong>邊框</strong>，清晰可辨識</li>
+        <li>✅ 徽章顯示購買次數（例如：購入済 ×2）</li>
+        <li>✅ 點擊徽章可查看完整購買歷史（日期、備註）</li>
+        <li>✅ 商品卡片新增「購入済にする」按鈕，快速標記</li>
+        <li>✅ 支援多次購買記錄，每次可填寫日期和備註</li>
+        <li>✅ 新增篩選選項：「只顯示已購買」/「隱藏已購買」</li>
+      </ul>
+    </div>
+
+    <h2>1️⃣ 篩選控制（新增購買歷史篩選）</h2>
+    <div class="filters-demo">
+      <div class="filters">
+        <label class="filter-label">
+          <input type="checkbox" id="filter-sale">
+          <span>特價中</span>
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-stock">
+          <span>無庫存</span>
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-store">
+          <span>隱藏實體店</span>
+        </label>
+        <label class="filter-label" style="border-left: 2px solid #4CAF50; padding-left: 15px;">
+          <input type="checkbox" id="filter-purchased-only">
+          <span>✅ 只顯示已購買</span>
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-hide-purchased">
+          <span>🚫 隱藏已購買</span>
+        </label>
+      </div>
+    </div>
+
+    <h2>2️⃣ 商品卡片展示</h2>
+    <div class="product-grid">
+      <!-- 已購買 1 次的商品 -->
+      <div class="product-card purchased">
+        <div class="purchase-badge" onclick="openModal('product1')">
+          ✓ 購入済
+        </div>
+        <div class="product-image">
+          <img src="https://placehold.co/240x280/4CAF50/white?text=已購買商品" alt="Sample Product 1">
+        </div>
+        <div class="product-info">
+          <a href="#" class="product-title">【初回限定版】魔法少女まどか☆マギカ Blu-ray BOX</a>
+          <div class="product-price">¥8,980</div>
+          <div class="purchase-action">
+            <button class="btn-mark-purchased marked" onclick="openModal('product1')">
+              📝 查看購買記錄
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已購買 2 次的商品 -->
+      <div class="product-card purchased">
+        <div class="purchase-badge" onclick="openModal('product2')">
+          ✓ 購入済 <span class="count">×2</span>
+        </div>
+        <div class="product-image">
+          <img src="https://placehold.co/240x280/66BB6A/white?text=多次購買" alt="Sample Product 2">
+        </div>
+        <div class="product-info">
+          <a href="#" class="product-title">ねんどろいど 初音ミク 雪ミク Snow Bell Ver.</a>
+          <div class="product-price">¥4,500</div>
+          <div class="purchase-action">
+            <button class="btn-mark-purchased marked" onclick="openModal('product2')">
+              📝 查看購買記錄 (2次)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 未購買的商品 -->
+      <div class="product-card">
+        <div class="product-image">
+          <img src="https://placehold.co/240x280/999/white?text=未購買商品" alt="Sample Product 3">
+        </div>
+        <div class="product-info">
+          <a href="#" class="product-title">figma Fate/Grand Order アルトリア・ペンドラゴン</a>
+          <div class="product-price">¥6,800</div>
+          <div class="purchase-action">
+            <button class="btn-mark-purchased" onclick="openModal('product3')">
+              ✓ 購入済にする
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 另一個未購買商品 -->
+      <div class="product-card">
+        <div class="product-image">
+          <img src="https://placehold.co/240x280/999/white?text=未購買商品" alt="Sample Product 4">
+        </div>
+        <div class="product-info">
+          <a href="#" class="product-title">Re:ゼロから始める異世界生活 レム 1/7スケールフィギュア</a>
+          <div class="product-price">¥12,800</div>
+          <div class="purchase-action">
+            <button class="btn-mark-purchased" onclick="openModal('product4')">
+              ✓ 購入済にする
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3️⃣ 購買歷史彈窗（點擊徽章或按鈕開啟）</h2>
+    <div class="feature-box">
+      <h3>💡 彈窗功能說明</h3>
+      <div class="feature-list">
+        <div class="feature-item">
+          <strong>查看歷史：</strong>顯示所有購買記錄，包含日期和備註
+        </div>
+        <div class="feature-item">
+          <strong>新增記錄：</strong>可以添加新的購買記錄（支援多次購買）
+        </div>
+        <div class="feature-item">
+          <strong>刪除記錄：</strong>可以移除錯誤的購買記錄
+        </div>
+        <div class="feature-item">
+          <strong>編輯備註：</strong>修改購買時的備註資訊
+        </div>
+      </div>
+    </div>
+
+    <h2>4️⃣ 資料結構範例</h2>
+    <div class="code-block">
+      <span class="comment">// 商品資料包含購買歷史</span>
+      {
+      <span class="key">url</span>: <span class="string">"https://www.suruga-ya.jp/product/detail/123456"</span>,
+      <span class="key">title</span>: <span class="string">"魔法少女まどか☆マギカ Blu-ray BOX"</span>,
+      <span class="key">imageUrl</span>: <span class="string">"https://..."</span>,
+      <span class="key">currentPrice</span>: <span class="string">"8,980"</span>,
+      <span class="key">purposeCategoryId</span>: <span class="number">1</span>,
+      <span class="key">seriesName</span>: <span class="string">"魔法少女まどか☆マギカ"</span>,
+      <span class="key">purchaseHistory</span>: [
+      {
+      <span class="key">date</span>: <span class="string">"2024-11-15"</span>,
+      <span class="key">note</span>: <span class="string">"首次購入 - 初回限定版"</span>
+      },
+      {
+      <span class="key">date</span>: <span class="string">"2024-12-01"</span>,
+      <span class="key">note</span>: <span class="string">"送朋友的禮物"</span>
+      }
+      ]
+      }
+    </div>
+
+    <h2>5️⃣ 實作要點</h2>
+    <div class="feature-box">
+      <h3>🔧 技術實作建議</h3>
+      <div class="feature-list">
+        <div class="feature-item">
+          <strong>資料儲存：</strong>後端 API 支援 purchaseHistory 欄位（陣列）
+        </div>
+        <div class="feature-item">
+          <strong>API 端點：</strong>
+          <br>• POST /api/SurugayaDetails/purchase - 新增購買記錄
+          <br>&nbsp;&nbsp;Body: { url, date, note }
+          <br>• DELETE /api/SurugayaDetails/purchase/{index} - 刪除購買記錄
+          <br>&nbsp;&nbsp;Body: { url }
+          <br>• PATCH /api/SurugayaDetails/purchase/{index} - 更新購買備註
+          <br>&nbsp;&nbsp;Body: { url, date, note }
+        </div>
+        <div class="feature-item">
+          <strong>快取處理：</strong>購買記錄變更時清除快取，確保資料同步
+        </div>
+        <div class="feature-item">
+          <strong>篩選邏輯：</strong>根據 purchaseHistory 陣列長度判斷是否已購買
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 購買歷史彈窗範例（初始隱藏，點擊徽章時顯示） -->
+  <div id="modal" class="modal-overlay" style="display: none;" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📋 購買歷史記錄</h3>
+        <button class="modal-close" onclick="closeModalBtn()">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 已有購買記錄 -->
+        <div id="has-history" style="display: block;">
+          <ul class="purchase-history-list">
+            <li class="purchase-history-item">
+              <div class="purchase-date">📅 2024-11-15</div>
+              <div class="purchase-note">首次購入 - 初回限定版</div>
+            </li>
+            <li class="purchase-history-item">
+              <div class="purchase-date">📅 2024-12-01</div>
+              <div class="purchase-note">送朋友的禮物</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 無購買記錄 -->
+        <div id="no-history" style="display: none;">
+          <div class="empty-history">
+            <p>📦 尚未有購買記錄</p>
+          </div>
+        </div>
+
+        <!-- 新增購買記錄表單 -->
+        <div class="add-purchase-form">
+          <h4 style="margin-bottom: 15px; color: #333;">➕ 新增購買記錄</h4>
+          <div class="form-group">
+            <label for="purchase-date">購買日期</label>
+            <input type="date" id="purchase-date" value="2024-12-01">
+          </div>
+          <div class="form-group">
+            <label for="purchase-note">備註（選填）</label>
+            <textarea id="purchase-note" placeholder="例如：初回限定版、送禮、再購入..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" onclick="addPurchase()">✓ 新增記錄</button>
+            <button class="btn-secondary" onclick="closeModalBtn()">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(productId) {
+      const modal = document.getElementById('modal');
+      modal.style.display = 'flex';
+
+      // 根據商品 ID 顯示不同的歷史記錄
+      const hasHistory = document.getElementById('has-history');
+      const noHistory = document.getElementById('no-history');
+
+      if (productId === 'product3' || productId === 'product4') {
+        hasHistory.style.display = 'none';
+        noHistory.style.display = 'block';
+      } else {
+        hasHistory.style.display = 'block';
+        noHistory.style.display = 'none';
+      }
+    }
+
+    function closeModalBtn() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function closeModal(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        closeModalBtn();
+      }
+    }
+
+    function addPurchase() {
+      const date = document.getElementById('purchase-date').value;
+      const note = document.getElementById('purchase-note').value;
+
+      if (!date) {
+        alert('請選擇購買日期');
+        return;
+      }
+
+      alert(`已新增購買記錄：\n日期：${date}\n備註：${note || '無'}`);
+      closeModalBtn();
+    }
+
+    // 設定今天的日期為預設值
+    document.getElementById('purchase-date').valueAsDate = new Date();
+  </script>
+</body>
+</html>
