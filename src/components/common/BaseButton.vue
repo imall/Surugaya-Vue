@@ -35,14 +35,11 @@ const buttonClasses = computed(() => {
   const baseClasses = [
     'rounded-lg',
     'border',
-    'shadow-sm',
     'outline-none',
     'cursor-pointer',
     'inline-flex',
     'items-center',
     'justify-center',
-    'transition-all',
-    'duration-200',
     'font-medium',
     'px-4',      // 默認水平內距
     'py-1.5',      // 默認垂直內距
@@ -51,35 +48,22 @@ const buttonClasses = computed(() => {
   // 變體樣式 - 使用語義化的 Tailwind 類別
   const variantClasses = {
     default: [
-      'bg-gradient-to-b',
-      'from-white',
-      'to-neutral-50',
-      'text-neutral-600',
-      'border-neutral-300',
-      'hover:from-neutral-50',
-      'hover:to-neutral-100',
-      'hover:border-neutral-400',
-      'hover:text-neutral-800',
-      'hover:shadow-md',
+      'bg-gray-100',
+      'text-gray-700',
+      'border-gray-300',
+      'hover:bg-gray-200',
     ],
     primary: [
-      'bg-gradient-to-b',
-      'from-orange-300',
-      'to-orange-400',
+      'bg-orange-400',
       'text-white',
       'border-orange-400',
-      'shadow-[0_2px_8px_rgba(253,186,116,0.25)]',
-      'hover:from-orange-400',
-      'hover:to-orange-500',
-      'hover:shadow-[0_4px_14px_rgba(251,146,60,0.3)]',
-      'hover:-translate-y-0.5',
+      'hover:bg-orange-500',
     ],
     danger: [
-      'bg-rose-400',
+      'bg-red-400',
       'text-white',
-      'border-rose-400',
-      'hover:bg-rose-500',
-      'hover:shadow-md',
+      'border-red-400',
+      'hover:bg-red-500',
     ],
   }
 

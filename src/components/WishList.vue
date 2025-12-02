@@ -518,7 +518,7 @@ onUnmounted(() => {
     <div class="bg-white rounded-xl shadow-sm mb-5 p-5">
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-3xl font-semibold text-gray-800 flex items-center gap-3 m-0">
-          📦 駿河屋 願望清單
+          📦 願望清單
         </h1>
         <RefreshButton :loading="loading" @refresh="handleRefresh" />
       </div>
@@ -527,48 +527,44 @@ onUnmounted(() => {
     <div class="bg-white rounded-xl shadow-sm mb-5 p-4">
       <div class="flex gap-2.5 flex-wrap">
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
           selectedTab === null
-            ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
-            : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+            ? 'bg-sky-500 text-white'
+            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(null)">
-          全部 <span :class="selectedTab === null ? 'bg-white/30' : 'bg-white/25'"
-            class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
+          全部 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
           selectedTab === 0
-            ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
-            : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+            ? 'bg-sky-500 text-white'
+            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(0)">
-          未分類 <span :class="selectedTab === 0 ? 'bg-white/30' : 'bg-white/25'"
-            class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
+          未分類 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
           selectedTab === 1
-            ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
-            : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+            ? 'bg-sky-500 text-white'
+            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(1)">
-          購買 <span :class="selectedTab === 1 ? 'bg-white/30' : 'bg-white/25'"
-            class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
+          購買 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
           selectedTab === 2
-            ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
-            : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+            ? 'bg-sky-500 text-white'
+            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(2)">
-          考慮 <span :class="selectedTab === 2 ? 'bg-white/30' : 'bg-white/25'"
-            class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
+          考慮 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
         </button>
         <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 flex items-center gap-1.5',
+          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-1.5 cursor-pointer',
           selectedTab === 3
-            ? 'bg-linear-to-br from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/30'
-            : 'bg-linear-to-b from-gray-50 to-gray-100 text-gray-600 border border-gray-300 hover:from-gray-100 hover:to-gray-200 hover:border-gray-400 hover:-translate-y-0.5'
+            ? 'bg-sky-500 text-white'
+            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
         ]" @click="changeTab(3)">
-          購物車 <span :class="selectedTab === 3 ? 'bg-white/30' : 'bg-white/25'"
+          購物車 <span 
             class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
         </button>
       </div>
@@ -578,21 +574,21 @@ onUnmounted(() => {
       <button @click="toggleFilters"
         class="md:hidden w-full flex items-center justify-between text-sm font-medium text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
         <span>篩選與排序</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200"
-          :class="{ 'rotate-180': showFilters }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="{ 'rotate-180': showFilters }" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       <div :class="[
-        'transition-all duration-300 ease-in-out pt-3',
-        showFilters ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden max-md:hidden'
+        'pt-3',
+        showFilters ? 'block' : 'hidden max-md:hidden'
       ]">
         <div class="flex gap-5 mb-4 flex-wrap max-md:flex-col">
           <div class="flex items-center gap-3 flex-1 min-w-[200px] max-md:w-full max-md:gap-2.5">
             <label for="sort-select" class="text-sm font-medium text-gray-600 whitespace-nowrap w-18">並び替え:</label>
             <select id="sort-select" v-model="sortOption"
-              class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 cursor-pointer transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10">
+              class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 cursor-pointer focus:outline-none focus:border-sky-400 focus:bg-white">
               <option value="default">デフォルト</option>
               <option value="price-asc">価格: 安い順</option>
               <option value="price-desc">価格: 高い順</option>
@@ -603,37 +599,37 @@ onUnmounted(() => {
           <div class="flex items-center gap-3 flex-1 min-w-[200px] max-md:w-full max-md:gap-2.5">
             <label for="series-search" class="text-sm font-medium text-gray-600 whitespace-nowrap w-18">作品で絞る:</label>
             <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
-              class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10" />
+              class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:border-sky-400 focus:bg-white" />
           </div>
         </div>
 
         <div class="flex gap-5 p-4 bg-gray-50 rounded-lg  flex-wrap">
           <div class="flex items-center flex-wrap">
             <label
-              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md hover:bg-gray-100">
               <input type="checkbox" v-model="filterOnSale" class="cursor-pointer w-4 h-4" />
               <span>特價中</span>
             </label>
             <label
-              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md hover:bg-gray-100">
               <input type="checkbox" v-model="filterOutOfStock" class="cursor-pointer w-4 h-4" />
               <span>無庫存</span>
             </label>
             <label
-              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md hover:bg-gray-100">
               <input type="checkbox" v-model="filterHidePhysicalStore" class="cursor-pointer w-4 h-4" />
               <span>隱藏實體店</span>
             </label>
           </div>
           <div
-            class="flex items-center gap-4 flex-wrap border-l-3 border-green-500 pl-5 ml-2.5 max-md:border-l-0 max-md:pl-0 max-md:ml-0 max-md:pt-2 max-md:border-t max-md:border-green-500 max-md:w-full">
+            class="flex items-center gap-4 flex-wrap border-l-3 border-sky-400 pl-5 ml-2.5 max-md:border-l-0 max-md:pl-0 max-md:ml-0 max-md:pt-2 max-md:border-t max-md:border-sky-400 max-md:w-full">
             <label
-              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md hover:bg-gray-100">
               <input type="checkbox" v-model="filterPurchasedOnly" class="cursor-pointer w-4 h-4" />
-              <span>✅ 只顯示已購買</span>
+              <span> 📦 只顯示已購買</span>
             </label>
             <label
-              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
+              class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md hover:bg-gray-100">
               <input type="checkbox" v-model="filterHidePurchased" class="cursor-pointer w-4 h-4" />
               <span>🚫 隱藏已購買</span>
             </label>
@@ -641,7 +637,7 @@ onUnmounted(() => {
         </div>
 
         <div :class="[
-          'flex items-center rounded-lg transition-all duration-300 pt-4',
+          'flex items-center rounded-lg pt-4',
           { 'opacity-50 pointer-events-none': loading.value }
         ]">
           <div v-if="selectedProducts.length === 0" class="w-full">
@@ -805,26 +801,19 @@ onUnmounted(() => {
   right: 20px;
   width: 44px;
   height: 44px;
-  background-color: #a3a9b0;
+  background-color: #6b7280;
   color: white;
   border: none;
   outline: none;
   border-radius: 50%;
   cursor: pointer;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
   padding: 0;
   align-items: center;
   justify-content: center;
 }
 
 .scroll-to-top-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.scroll-to-top-btn:active {
-  transform: translateY(0);
+  background-color: #4b5563;
 }
 </style>
