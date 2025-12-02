@@ -600,7 +600,7 @@ onUnmounted(() => {
     <div class="bg-white rounded-xl shadow-sm mb-5 p-5 relative overflow-visible">
       <!-- 折疊按鈕 (手機版顯示) -->
       <button @click="toggleFilters"
-        class="md:hidden w-full flex items-center justify-between mb-3 text-sm font-medium text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+        class="md:hidden w-full flex items-center justify-between text-sm font-medium text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
         <span>篩選與排序</span>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200"
           :class="{ 'rotate-180': showFilters }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -610,13 +610,13 @@ onUnmounted(() => {
 
       <!-- 可折疊的篩選區 -->
       <div :class="[
-        'transition-all duration-300 ease-in-out',
+        'transition-all duration-300 ease-in-out pt-3',
         showFilters ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden max-md:hidden'
       ]">
         <!-- 排序和搜尋 -->
-        <div class="flex gap-5 mb-4 flex-wrap">
-          <div class="flex items-center gap-2.5 flex-1 min-w-[200px]">
-            <label for="sort-select" class="text-sm font-medium text-gray-600 whitespace-nowrap">並び替え:</label>
+        <div class="flex gap-5 mb-4 flex-wrap max-md:flex-col">
+          <div class="flex items-center gap-3 flex-1 min-w-[200px] max-md:w-full max-md:gap-2.5">
+            <label for="sort-select" class="text-sm font-medium text-gray-600 whitespace-nowrap w-18">並び替え:</label>
             <select id="sort-select" v-model="sortOption"
               class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 cursor-pointer transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10">
               <option value="default">デフォルト</option>
@@ -626,15 +626,15 @@ onUnmounted(() => {
               <option value="name-desc">名前: Z→A</option>
             </select>
           </div>
-          <div class="flex items-center gap-2.5 flex-1 min-w-[200px]">
-            <label for="series-search" class="text-sm font-medium text-gray-600 whitespace-nowrap">作品で絞る:</label>
+          <div class="flex items-center gap-3 flex-1 min-w-[200px] max-md:w-full max-md:gap-2.5">
+            <label for="series-search" class="text-sm font-medium text-gray-600 whitespace-nowrap w-18">作品で絞る:</label>
             <input id="series-search" v-model="seriesSearchKeyword" type="text" placeholder="作品名を入力して検索..."
               class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 transition-all duration-200 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-3 focus:ring-sky-500/10" />
           </div>
         </div>
 
         <!-- 篩選選項 -->
-        <div class="flex gap-5 p-4 bg-gray-50 rounded-lg mb-4 flex-wrap">
+        <div class="flex gap-5 p-4 bg-gray-50 rounded-lg  flex-wrap">
           <div class="flex items-center flex-wrap">
             <label
               class="inline-flex items-center gap-1.5 text-sm cursor-pointer select-none px-3 py-1.5 rounded-md transition-colors duration-200 hover:bg-black/5">
@@ -668,7 +668,7 @@ onUnmounted(() => {
         </div>
 
         <div :class="[
-          'flex items-center px-4 py-3 rounded-lg transition-all duration-300'
+          'flex items-center rounded-lg transition-all duration-300 pt-4'
         ]">
           <!-- 當沒有選中商品時，顯示新增商品功能 -->
           <div v-if="selectedProducts.length === 0" class="w-full">
