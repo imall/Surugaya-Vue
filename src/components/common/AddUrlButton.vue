@@ -63,6 +63,7 @@ watch(() => props.errorMessage, (newError) => {
     // 設定3秒後自動隱藏錯誤訊息
     errorTimeout = setTimeout(() => {
       showError.value = false
+      url.value = ''
     }, 1500)
   }
 })
