@@ -1051,7 +1051,6 @@ const refreshPurchaseHistory = async () => {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: auto;
 }
 
 .btn-cancel:hover:not(:disabled) {
@@ -1175,7 +1174,6 @@ const refreshPurchaseHistory = async () => {
 .modal-actions {
   display: flex;
   gap: 8px;
-  justify-content: space-between;
   align-items: center;
   margin-top: 30px;
 }
