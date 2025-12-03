@@ -780,9 +780,6 @@ const refreshPurchaseHistory = async () => {
 }
 
 .purchase-badge .count {
-  background: rgba(255, 255, 255, 0.35);
-  padding: 2px 6px;
-  border-radius: 8px;
   font-size: 10px;
   font-weight: 700;
 }
