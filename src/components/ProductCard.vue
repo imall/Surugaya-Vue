@@ -59,6 +59,9 @@ const localSeriesName = ref(props.product.seriesName || '')
 const localPurposeCategoryId = ref(props.product.purposeCategoryId ?? 0)
 const saving = ref(false)
 
+// 重新整理商品資料
+const refreshing = ref(false)
+
 // 購買記錄彈窗狀態
 const showPurchaseModal = ref(false)
 const purchaseDate = ref('')
@@ -290,6 +293,42 @@ const saveAll = async () => {
     alert('全部儲存時發生錯誤: ' + parseErrorMessage(err))
   } finally {
     saving.value = false
+  }
+}
+
+// 重新整理商品資料
+const refreshProductData = async () => {
+  refreshing.value = true
+  try {
+    const response = await fetch(
+      `https://surugaya.onrender.com/api/ScraperManagement/execute-single?url=${encodeURIComponent(props.product.url)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json'
+        }
+      }
+    )
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(text || '商品資料の更新に失敗しました')
+    }
+
+    const result = await response.json()
+
+    // 發送更新事件給父組件
+    emit('updated', {
+      url: props.product.url,
+      ...result
+    })
+
+    alert('商品資料已成功更新！')
+    showEditModal.value = false
+  } catch (err) {
+    alert('更新商品資料時發生錯誤: ' + parseErrorMessage(err))
+  } finally {
+    refreshing.value = false
   }
 }
 
@@ -572,32 +611,42 @@ const refreshPurchaseHistory = async () => {
 
     <div v-if="showEditModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-box" role="dialog" aria-modal="true">
-        <h3>編輯項目</h3>
-
-        <div class="modal-row field-with-action">
-          <label class="small-label">用途</label>
-          <div class="field-action-row">
-            <select v-model="localPurposeCategoryId" class="purpose-select">
-              <option v-for="id in getCategoryIds()" :key="id" :value="id">
-                {{ getCategoryText(id) }}
-              </option>
-            </select>
-            <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
-          </div>
+        <div class="modal-header">
+          <h3>編輯項目</h3>
+          <button class="btn-icon-refresh" @click="refreshProductData" :disabled="refreshing || saving"
+            :title="refreshing ? '更新中...' : '重新從駿河屋抓取最新資料'">
+            <span :class="{ 'spinning': refreshing }">🔄</span>
+          </button>
         </div>
 
-        <div class="modal-row field-with-action">
-          <label class="small-label">作品名</label>
-          <div class="field-action-row">
-            <input v-model="localSeriesName" class="series-input" />
-            <button class="btn-inline btn-series" @click="saveSeriesOnly" :disabled="saving">儲存</button>
+        <div class="modal-body">
+          <div class="modal-row field-with-action">
+            <label class="small-label">用途</label>
+            <div class="field-action-row">
+              <select v-model="localPurposeCategoryId" class="purpose-select">
+                <option v-for="id in getCategoryIds()" :key="id" :value="id">
+                  {{ getCategoryText(id) }}
+                </option>
+              </select>
+              <button class="btn-inline btn-purpose" @click="savePurposeOnly" :disabled="saving">儲存</button>
+            </div>
+          </div>
+
+          <div class="modal-row field-with-action">
+            <label class="small-label">作品名</label>
+            <div class="field-action-row">
+              <input v-model="localSeriesName" class="series-input" />
+              <button class="btn-inline btn-series" @click="saveSeriesOnly" :disabled="saving">儲存</button>
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn-delete-item" @click="handleDelete" title="刪除此商品">🗑️ 刪除</button>
-          <button class="btn-save-all" @click="saveAll" :disabled="saving">全部儲存</button>
-          <button class="btn-cancel" @click="closeModal" :disabled="saving">取消</button>
+          <button class="btn-delete-item" @click="handleDelete" title="刪除此商品">🗑️</button>
+          <div class="action-buttons-right">
+            <button class="btn-save-all" @click="saveAll" :disabled="saving || refreshing">全部儲存</button>
+            <button class="btn-cancel" @click="closeModal" :disabled="saving || refreshing">取消</button>
+          </div>
         </div>
       </div>
     </div>
@@ -750,7 +799,7 @@ const refreshPurchaseHistory = async () => {
 
 /* 有購買記錄的徽章 - 淡雅綠色 */
 .purchase-badge.has-purchase {
-  background: #C1F0C1    ;
+  background: #C1F0C1;
   color: #2E7D32;
   box-shadow: 0 1px 3px rgba(76, 175, 80, 0.08);
 }
@@ -927,7 +976,8 @@ const refreshPurchaseHistory = async () => {
   box-shadow: none;
 }
 
-.btn-purpose,btn-series {
+.btn-purpose,
+.btn-series {
   background: linear-gradient(180deg, #e6f7ff 0%, #d0f1ff 100%);
   color: #07516a;
   border: 1px solid #c6eaf6;
@@ -1015,31 +1065,29 @@ const refreshPurchaseHistory = async () => {
   cursor: not-allowed;
 }
 
-/* 刪除按鈕（在模態框內） */
+/* 刪除按鈕 - 簡化為圖示版本 */
 .btn-delete-item {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  padding: 8px 14px;
-  border-radius: 8px;
+  background: transparent;
+  width: 39px;
+  height: 39px;
+  padding: 6px 10px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 600;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
 }
 
 .btn-delete-item:hover {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+  transform: scale(1.3);
 }
 
 .btn-delete-item:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(1);
 }
 
 .btn-cancel {
@@ -1130,13 +1178,70 @@ const refreshPurchaseHistory = async () => {
 
 .modal-box h3 {
   text-align: center;
-  margin: 0 0 8px 0;
+  margin: 0;
   color: #263238;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .modal-box {
   background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
   border: 1px solid rgba(38, 50, 56, 0.06);
+}
+
+/* 模態框頭部 */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+/* 重新整理圖示按鈕 */
+.btn-icon-refresh {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #1565C0;
+}
+
+.btn-icon-refresh:hover:not(:disabled) {
+  background: rgba(21, 101, 192, 0.08);
+}
+
+.btn-icon-refresh:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-icon-refresh .spinning {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -1168,19 +1273,25 @@ const refreshPurchaseHistory = async () => {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin: 10px 0;
+  margin: 12px 0;
 }
 
 .modal-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  margin-top: 30px;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
-.modal-actions .btn-delete-item {
-  margin-right: auto;
+.action-buttons-right {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
+
 
 .category {
   font-size: 12px;
