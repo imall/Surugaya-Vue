@@ -20,8 +20,8 @@
     </BaseButton>
   </div>
 
-  <div v-if="errorMessage && showAdd"
-    class="mt-2 text-red-600 text-xs bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-md shadow-sm">
+  <div v-if="errorMessage && showAdd && showError"
+    class="mt-5  ml-auto text-red-600 text-m text-center bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-md shadow-sm w-[360px] max-w-[calc(100%-35px)]">
     {{ errorMessage }}
   </div>
 </template>
@@ -30,7 +30,7 @@
 import { ref, nextTick, watch } from 'vue'
 import BaseButton from './BaseButton.vue'
 
-defineProps({
+const props = defineProps({
   adding: {
     type: Boolean,
     default: false
@@ -46,12 +46,24 @@ const emit = defineEmits(['add', 'update:url'])
 const showAdd = ref(false)
 const url = ref('')
 const inputRef = ref(null)
+const showError = ref(false)
+let errorTimeout = null
 
-// 當彈出框顯示時，自動聚焦輸入框
-watch(showAdd, async (newVal) => {
-  if (newVal) {
-    await nextTick()
-    inputRef.value?.focus()
+// 監聽錯誤訊息，3秒後自動隱藏
+watch(() => props.errorMessage, (newError) => {
+  if (newError) {
+    // 顯示錯誤訊息
+    showError.value = true
+
+    // 清除之前的計時器
+    if (errorTimeout) {
+      clearTimeout(errorTimeout)
+    }
+
+    // 設定3秒後自動隱藏錯誤訊息
+    errorTimeout = setTimeout(() => {
+      showError.value = false
+    }, 1500)
   }
 })
 

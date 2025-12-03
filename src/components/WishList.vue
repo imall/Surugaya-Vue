@@ -161,8 +161,8 @@ const handleAddUrl = async (url) => {
     })
 
     if (!response.ok) {
-      const text = await response.text()
-      throw new Error(text || 'API エラー')
+      const err = await response.json()
+      throw new Error(err.message || 'API エラー')
     }
 
     // 成功: 清空輸入並重新載入列表
