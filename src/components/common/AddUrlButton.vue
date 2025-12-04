@@ -1,8 +1,8 @@
 <template>
-  <div class="relative w-full add-url-root h-10">
+  <div class="flex justify-between items-center gap-2">
     <transition name="slide">
-      <div v-if="showAdd"
-        class="add-panel absolute top-1/2 transform -translate-y-1/2 right-12 flex items-center gap-2 bg-white border border-gray-300 p-2 rounded-lg shadow-sm w-[360px] max-w-[calc(100%-35px)]">
+      <div :class="['w-full flex items-center gap-2 transition-all duration-300 border-gray-300 rounded-lg shadow-sm bg-white',
+        showAdd ? 'opacity-100 max-h-[100px] p-2 border' : 'opacity-0 max-h-0 p-0 border-0']">
         <input id="url" ref="inputRef" v-model="url" @keyup.enter="handleAdd" @keyup.esc="showAdd = false" type="text"
           placeholder="貼上商品網址，Enter送出"
           class="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-300 transition-all duration-200" />
@@ -14,14 +14,14 @@
     </transition>
 
     <BaseButton
-      class="add-toggle absolute right-0 top-1/2 transform -translate-y-1/2 w-10 h-10 p-0! text-lg font-semibold leading-none rounded-lg shadow-sm transition-all duration-200 hover:shadow-md"
+      class="add-toggle  transform  w-10 h-10 text-lg font-semibold leading-none rounded-lg shadow-sm transition-all duration-200 hover:shadow-md ml-auto"
       variant="default" @click="showAdd = !showAdd" :title="showAdd ? '關閉' : '新增商品'">
       {{ showAdd ? '×' : '+' }}
     </BaseButton>
   </div>
 
   <div v-if="errorMessage && showAdd && showError"
-    class="mt-5  ml-auto text-red-600 text-m text-center bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-md shadow-sm w-[360px] max-w-[calc(100%-35px)]">
+    class="mt-5  ml-auto text-red-600 text-m text-center bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-md shadow-sm ">
     {{ errorMessage }}
   </div>
 </template>
@@ -106,18 +106,5 @@ defineExpose({
 .slide-leave-to {
   opacity: 0;
   transform: translateX(20px);
-}
-
-/* 新增：響應式面板和按鈕行為 */
-.add-url-root {
-  position: relative;
-}
-
-.add-url-root .add-panel {
-  z-index: 40;
-}
-
-.add-url-root .add-toggle {
-  z-index: 50;
 }
 </style>
