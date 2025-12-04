@@ -317,13 +317,18 @@ const refreshProductData = async () => {
 
     const result = await response.json()
 
-    // 發送更新事件給父組件
+    // 從 API 回應中取得更新的商品資料
+    const updatedProduct = result.product || result
+
+    // 通知父層更新 seriesName，因為只有 seriesName 的更新需要用到 reload
     emit('updated', {
       url: props.product.url,
-      ...result
+      seriesName: updatedProduct.seriesName
     })
 
-    alert('商品資料已成功更新！')
+    // 同時更新本地的 seriesName
+    localSeriesName.value = updatedProduct.seriesName || ''
+
     showEditModal.value = false
   } catch (err) {
     alert('更新商品資料時發生錯誤: ' + parseErrorMessage(err))
@@ -615,7 +620,7 @@ const refreshPurchaseHistory = async () => {
           <h3>編輯項目</h3>
           <button class="btn-icon-refresh" @click="refreshProductData" :disabled="refreshing || saving"
             :title="refreshing ? '更新中...' : '重新從駿河屋抓取最新資料'">
-            <span :class="{ 'spinning': refreshing }">🔄</span>
+            <span class="flex items-center justify-center" :class="{ 'animate-spin': refreshing }">↻</span>
           </button>
         </div>
 
@@ -1227,11 +1232,6 @@ const refreshPurchaseHistory = async () => {
 .btn-icon-refresh:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.btn-icon-refresh .spinning {
-  display: inline-block;
-  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
