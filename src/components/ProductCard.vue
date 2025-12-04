@@ -620,7 +620,7 @@ const refreshPurchaseHistory = async () => {
           <h3>編輯項目</h3>
           <button class="btn-icon-refresh" @click="refreshProductData" :disabled="refreshing || saving"
             :title="refreshing ? '更新中...' : '重新從駿河屋抓取最新資料'">
-            <span class="flex items-center justify-center" :class="{ 'animate-spin': refreshing }">↻</span>
+            <span class="flex items-center justify-center w-full h-full" :class="{ 'animate-spin': refreshing }">↻</span>
           </button>
         </div>
 
