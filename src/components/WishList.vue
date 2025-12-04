@@ -661,7 +661,7 @@ onUnmounted(() => {
             <BaseButton v-if="selectedTab === 3" variant="primary" class="h-10 whitespace-nowrap"
               :disabled="addingToCart" @click="addToCart">
               <template v-if="addingToCart">
-                <span class="flex items-center justify-center animate-spin mr-2 w-full h-full">↻</span>
+                <span class="flex items-center justify-center animate-spin mr-2 w-full h-full origin-center">↻</span>
                 処理中...
               </template>
               <template v-else>
