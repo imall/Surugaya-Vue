@@ -258,6 +258,13 @@ const sortedProducts = computed(() => {
   }
 })
 
+// 計算當前篩選商品的總金額
+const totalAmount = computed(() => {
+  return sortedProducts.value.reduce((sum, product) => {
+    return sum + getEffectivePrice(product)
+  }, 0)
+})
+
 const fetchProducts = async () => {
   try {
     loading.value = true
@@ -531,47 +538,56 @@ onUnmounted(() => {
     </div>
 
     <div class="bg-white rounded-xl shadow-sm mb-5 p-4">
-      <div class="flex gap-2.5 flex-wrap">
-        <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
-          selectedTab === null
-            ? 'bg-blue-400 text-white'
-            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
-        ]" @click="changeTab(null)">
-          全部 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
-        </button>
-        <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
-          selectedTab === 0
-            ? 'bg-blue-400 text-white'
-            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
-        ]" @click="changeTab(0)">
-          未分類 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
-        </button>
-        <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
-          selectedTab === 1
-            ? 'bg-blue-400 text-white'
-            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
-        ]" @click="changeTab(1)">
-          購買 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
-        </button>
-        <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
-          selectedTab === 2
-            ? 'bg-blue-400 text-white'
-            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
-        ]" @click="changeTab(2)">
-          考慮 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
-        </button>
-        <button :class="[
-          'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
-          selectedTab === 3
-            ? 'bg-blue-400 text-white'
-            : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
-        ]" @click="changeTab(3)">
-          購物車 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
-        </button>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <!-- 左側：分類標籤 -->
+        <div class="flex gap-2.5 flex-wrap">
+          <button :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
+            selectedTab === null
+              ? 'bg-blue-400 text-white'
+              : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
+          ]" @click="changeTab(null)">
+            全部 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts.all }}</span>
+          </button>
+          <button :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
+            selectedTab === 0
+              ? 'bg-blue-400 text-white'
+              : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
+          ]" @click="changeTab(0)">
+            未分類 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[0] }}</span>
+          </button>
+          <button :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
+            selectedTab === 1
+              ? 'bg-blue-400 text-white'
+              : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
+          ]" @click="changeTab(1)">
+            購買 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[1] }}</span>
+          </button>
+          <button :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
+            selectedTab === 2
+              ? 'bg-blue-400 text-white'
+              : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
+          ]" @click="changeTab(2)">
+            考慮 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[2] }}</span>
+          </button>
+          <button :class="[
+            'px-4 py-2.5 rounded-lg font-medium text-sm flex items-center  cursor-pointer',
+            selectedTab === 3
+              ? 'bg-blue-400 text-white'
+              : 'bg-sky-50 text-sky-700  hover:bg-sky-100'
+          ]" @click="changeTab(3)">
+            購物車 <span class="px-2 py-0.5 rounded-full text-xs font-bold">{{ tabCounts[3] }}</span>
+          </button>
+        </div>
+
+        <!-- 右側：總金額 -->
+        <div class="flex items-center gap-2 text-lg font-semibold max-md:w-full max-md:justify-end max-md:mt-3 max-md:text-base">
+          <span class="text-gray-600">合計金額:</span>
+          <span class="text-red-600">¥{{ totalAmount.toLocaleString() }}</span>
+        </div>
       </div>
     </div>
 
